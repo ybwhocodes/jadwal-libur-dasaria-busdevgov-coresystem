@@ -1,0 +1,549 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Absensi Bulanan - Dashboard</title>
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Font Google -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+
+    /* Grid seperti Excel */
+    .gridline { border: 1px solid #d1d5db; }
+
+    /* Sticky (kolom Nama + BA) */
+    .sticky-col-1 { position: sticky; left: 0; z-index: 20; background: inherit; }
+    .sticky-col-2 { position: sticky; left: 14rem; z-index: 20; background: inherit; }
+
+    /* Sticky header 2 baris */
+    .sticky-head-1 { position: sticky; top: 0; z-index: 30; }
+    .sticky-head-2 { position: sticky; top: 3rem; z-index: 30; }
+
+    /* Lebar kolom */
+    .w-name { width: 14rem; min-width: 14rem; }
+    .w-ba   { width: 4rem; min-width: 4rem; }
+    .w-day  { width: 2.5rem; min-width: 2.5rem; }
+
+    /* Tinggi */
+    .h-head { height: 3rem; }
+    .h-row  { height: 2.5rem; }
+
+    /* Warna header modern */
+    .head-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; }
+    .head-secondary { background: linear-gradient(135deg, #5e72e4 0%, #825ee4 100%); color: #fff; }
+    .head-name { background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); color: #4338ca; font-weight: 600; }
+    .head-ba { background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); color: #1e40af; font-weight: 600; }
+
+    /* Warna baris modern */
+    .row-green { background: #f0fdf4; }
+    .row-green:hover { background: #dcfce7; }
+    .row-pink  { background: #fdf2f8; }
+    .row-pink:hover { background: #fce7f3; }
+    .row-blue  { background: #eff6ff; }
+    .row-blue:hover { background: #dbeafe; }
+
+    /* Sel "L" dengan style modern */
+    .cell-L { 
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); 
+      color: #fff; 
+      font-weight: 700; 
+      border-radius: 0.25rem;
+      box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+    }
+
+    .cell-S { 
+      background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); 
+      color: #fff; 
+      font-weight: 700; 
+      border-radius: 0.25rem;
+      box-shadow: 0 2px 4px rgba(236, 72, 153, 0.3);
+    }
+
+    .cell-A { 
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); 
+      color: #fff; 
+      font-weight: 700; 
+      border-radius: 0.25rem;
+      box-shadow: 0 2px 4px rgba(251, 191, 36, 0.3);
+    }
+
+    .scrollwrap { 
+      overflow: auto; 
+      border: 2px solid #e5e7eb; 
+      border-radius: 1rem; 
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      background: white;
+    }
+
+    /* Card style */
+    .card {
+      background: white;
+      border-radius: 1rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      padding: 1.5rem;
+    }
+
+    /* Button styles */
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      transition: all 0.3s ease;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+      transition: all 0.3s ease;
+    }
+    .btn-secondary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    /* Stats card */
+    .stat-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 1rem;
+      padding: 1.5rem;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    /* Weekend highlight */
+    .weekend-col {
+      background-color: rgba(239, 68, 68, 0.05);
+    }
+
+    /* Custom scrollbar */
+    .scrollwrap::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+    .scrollwrap::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 10px;
+    }
+    .scrollwrap::-webkit-scrollbar-thumb {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 10px;
+    }
+    .scrollwrap::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(135deg, #5568d3 0%, #6a4193 100%);
+    }
+  </style>
+</head>
+
+<body class="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen">
+  <div class="max-w-[98%] mx-auto p-6">
+    
+    <!-- Header -->
+    <div class="card mb-6 fade-in">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h1 class="text-3xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+            📊 Dashboard Absensi
+          </h1>
+          <p id="subtitle" class="text-sm text-slate-600 mt-1"></p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <div class="flex items-center gap-2">
+            <label class="text-sm font-medium text-slate-700">Bulan:</label>
+            <select id="monthSel" class="border-2 border-slate-300 rounded-lg px-3 py-2 text-sm focus:border-purple-500 focus:outline-none transition-colors"></select>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <label class="text-sm font-medium text-slate-700">Tahun:</label>
+            <input id="yearInp" type="number" class="border-2 border-slate-300 rounded-lg px-3 py-2 text-sm w-28 focus:border-purple-500 focus:outline-none transition-colors" />
+          </div>
+
+          <button id="applyBtn" class="btn-primary text-white rounded-lg px-5 py-2.5 text-sm font-medium shadow-md">
+            ✓ Terapkan
+          </button>
+
+          <button id="presetBtn" class="btn-secondary border-2 border-slate-300 rounded-lg px-5 py-2.5 text-sm font-medium hover:bg-slate-50">
+            🎯 Preset Feb 2026
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats Summary -->
+      <div id="statsContainer" class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
+        <!-- Stats akan di-generate oleh JavaScript -->
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="card mb-6 fade-in">
+      <div class="flex flex-wrap items-center gap-6">
+        <h3 class="text-sm font-semibold text-slate-700">Keterangan:</h3>
+        <div class="flex items-center gap-2">
+          <span class="inline-block w-8 h-8 cell-L rounded text-center leading-8 text-xs">L</span>
+          <span class="text-sm text-slate-600">Libur</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="inline-block w-8 h-8 cell-S rounded text-center leading-8 text-xs">S</span>
+          <span class="text-sm text-slate-600">Sakit</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="inline-block w-8 h-8 cell-A rounded text-center leading-8 text-xs">A</span>
+          <span class="text-sm text-slate-600">Alpa</span>
+        </div>
+        <div class="ml-auto text-xs text-slate-500">
+          💡 <span class="font-medium">Tip:</span> Scroll horizontal untuk melihat semua tanggal
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="scrollwrap fade-in">
+      <table id="tbl" class="border-collapse text-sm w-full"></table>
+    </div>
+
+    <!-- Footer Info -->
+    <!-- <div class="mt-6 card fade-in">
+      <div class="flex items-start gap-3 text-sm text-slate-600">
+        <span class="text-lg">ℹ️</span>
+        <div>
+          <p class="font-medium text-slate-700 mb-1">Catatan Pengembang</p>
+          <p>Data libur per karyawan dapat dikelola melalui objek JavaScript: <code class="bg-slate-100 px-2 py-1 rounded font-mono text-xs">ABSENSI_PER_KARYAWAN</code></p>
+          <p class="mt-1">Format: <code class="bg-slate-100 px-2 py-1 rounded font-mono text-xs">{ "Nama": { "YYYY-MM-DD": "L" } }</code></p>
+        </div>
+      </div>
+    </div> -->
+
+  </div>
+
+  <script>
+    // =========================
+    // A) DATA KARYAWAN
+    // =========================
+    const PEOPLE = [
+      { name: "R. Billyan Mauldan Ghifari", ba: "BA", rowClass: "row-pink"  },
+      { name: "Dedih Hasanah Wijaya",       ba: "BA", rowClass: "row-green" },
+      { name: "Nur Huda Riyanto",           ba: "BI", rowClass: "row-green" },
+      { name: "Eka Mira Novita Subroto",    ba: "BI", rowClass: "row-green" },
+      { name: "Yusuf Ananta Tirtojojo",     ba: "BA", rowClass: "row-green" },
+      { name: "Faradhila Putri Kusuma",     ba: "BA", rowClass: "row-green" },
+      { name: "Muhammad Alif Nur Darwanzza",ba: "BA", rowClass: "row-green" },
+      { name: "Merryvelliane Fitrifatsa Fiqjanto", ba: "PM", rowClass: "row-pink" },
+      { name: "Shofy Pramesti Putri Guruh", ba: "UI/UX", rowClass: "row-pink" },
+      { name: "Rafi Raban Raihan",          ba: "UI/UX", rowClass: "row-pink" },
+      { name: "Brian Aldy Bramasta",        ba: "FE", rowClass: "row-pink" },
+      { name: "Mohammad Rizal Maulana Najib", ba: "BE", rowClass: "row-pink" },
+      { name: "Graein Rivaldy",             ba: "NPE", rowClass: "row-blue" },
+    ];
+
+    // =========================
+    // B) DATA ABSENSI PER KARYAWAN
+    // =========================
+    const ABSENSI_PER_KARYAWAN = {
+      "R. Billyan Mauldan Ghifari": {
+        "2026-02-07":"L", "2026-02-15":"L", "2026-02-21":"L", "2026-02-28":"L"
+      },
+      "Dedih Hasanah Wijaya": {
+        "2026-02-01":"L", "2026-02-07":"L", "2026-02-14":"L", "2026-02-17":"L", "2026-02-21":"L"
+      },
+      "Nur Huda Riyanto": {
+        "2026-02-08":"L", "2026-02-17":"L", "2026-02-18":"L", "2026-02-22":"L", "2026-02-28":"L"
+      },
+      "Eka Mira Novita Subroto": {
+        "2026-02-01":"L", "2026-02-07":"L", "2026-02-14":"L", "2026-02-17":"L", "2026-02-21":"L"
+      },
+      "Yusuf Ananta Tirtojojo": {
+        "2026-02-08":"L", "2026-02-15":"L", "2026-02-22":"L", "2026-02-28":"L"
+      },
+      "Faradhila Putri Kusuma": {
+        "2026-02-01":"L", "2026-02-08":"L", "2026-02-14":"L", "2026-02-22":"L"
+      },
+      "Muhammad Alif Nur Darwanzza": {
+        "2026-02-07":"L", "2026-02-15":"L", "2026-02-21":"L", "2026-02-28":"L"
+      },
+      "Merryvelliane Fitrifatsa Fiqjanto": {
+        "2026-02-08":"L", "2026-02-15":"L", "2026-02-21":"L", "2026-02-28":"L"
+      },
+      "Shofy Pramesti Putri Guruh": {
+        "2026-02-01":"L", "2026-02-07":"L", "2026-02-14":"L", "2026-02-21":"L"
+      },
+      "Rafi Raban Raihan": {
+        "2026-02-08":"L", "2026-02-15":"L", "2026-02-17":"L", "2026-02-22":"L", "2026-02-28":"L"
+      },
+      "Brian Aldy Bramasta": {
+        "2026-02-01":"L", "2026-02-07":"L", "2026-02-14":"L", "2026-02-17":"L", "2026-02-21":"L"
+      },
+      "Mohammad Rizal Maulana Najib": {
+        "2026-02-01":"L", "2026-02-08":"L", "2026-02-15":"L", "2026-02-22":"L"
+      },
+      "Graein Rivaldy": {
+        "2026-02-08":"L", "2026-02-22":"L", "2026-02-28":"L"
+      }
+    };
+
+    // =========================
+    // C) UTIL
+    // =========================
+    const DOW_ID = ["Min","Sen","Sel","Rab","Kam","Jum","Sab"];
+    const DOW_FULL = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+
+    function pad2(n){ return String(n).padStart(2,"0"); }
+    function ymd(y,m,d){ return `${y}-${pad2(m)}-${pad2(d)}`; }
+    function daysInMonth(year, month1to12){
+      return new Date(year, month1to12, 0).getDate();
+    }
+    function monthNameID(month1to12){
+      const names = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+      return names[month1to12-1];
+    }
+
+    function getStatus(name, dateStr){
+      const rec = ABSENSI_PER_KARYAWAN[name];
+      if (!rec) return "";
+      return rec[dateStr] || "";
+    }
+
+    function isWeekend(year, month, day) {
+      const dt = new Date(year, month-1, day);
+      const dow = dt.getDay();
+      return dow === 0 || dow === 6; // Minggu atau Sabtu
+    }
+
+    // =========================
+    // D) RENDER TABLE
+    // =========================
+    function buildMonthOptions(){
+      const sel = document.getElementById("monthSel");
+      sel.innerHTML = "";
+      for(let i=1;i<=12;i++){
+        const opt = document.createElement("option");
+        opt.value = i;
+        opt.textContent = monthNameID(i);
+        sel.appendChild(opt);
+      }
+    }
+
+    function setSubtitle(year, month){
+      document.getElementById("subtitle").textContent =
+        `Periode: ${monthNameID(month)} ${year} • ${PEOPLE.length} Karyawan • Data otomatis dari sistem`;
+    }
+
+    function updateStats(year, month) {
+      const dim = daysInMonth(year, month);
+      let totalL = 0, totalS = 0, totalA = 0;
+      let totalWorkDays = dim * PEOPLE.length;
+
+      PEOPLE.forEach(p => {
+        for(let d=1; d<=dim; d++){
+          const dateStr = ymd(year, month, d);
+          const status = getStatus(p.name, dateStr);
+          if (status === "L") totalL++;
+          else if (status === "S") totalS++;
+          else if (status === "A") totalA++;
+        }
+      });
+
+      const totalPresent = totalWorkDays - totalL - totalS - totalA;
+      const attendanceRate = ((totalPresent / totalWorkDays) * 100).toFixed(1);
+
+      const statsHTML = `
+        <div class="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl p-4 shadow-lg">
+          <div class="text-sm opacity-90 mb-1">Total Hadir</div>
+          <div class="text-3xl font-bold">${totalPresent}</div>
+          <div class="text-xs opacity-75 mt-1">${attendanceRate}% kehadiran</div>
+        </div>
+        <div class="bg-gradient-to-br from-red-500 to-red-600 text-white rounded-xl p-4 shadow-lg">
+          <div class="text-sm opacity-90 mb-1">Total Libur</div>
+          <div class="text-3xl font-bold">${totalL}</div>
+          <div class="text-xs opacity-75 mt-1">dari ${PEOPLE.length} karyawan</div>
+        </div>
+        <div class="bg-gradient-to-br from-pink-500 to-pink-600 text-white rounded-xl p-4 shadow-lg">
+          <div class="text-sm opacity-90 mb-1">Total Sakit</div>
+          <div class="text-3xl font-bold">${totalS}</div>
+          <div class="text-xs opacity-75 mt-1">izin sakit</div>
+        </div>
+        <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 text-white rounded-xl p-4 shadow-lg">
+          <div class="text-sm opacity-90 mb-1">Total Alpa</div>
+          <div class="text-3xl font-bold">${totalA}</div>
+          <div class="text-xs opacity-75 mt-1">tanpa keterangan</div>
+        </div>
+      `;
+      document.getElementById("statsContainer").innerHTML = statsHTML;
+    }
+
+    function th(text, cls){
+      const el = document.createElement("th");
+      el.className = cls;
+      el.textContent = text;
+      return el;
+    }
+
+    function td(text, cls){
+      const el = document.createElement("td");
+      el.className = cls;
+      el.textContent = text;
+      return el;
+    }
+
+    function renderTable(year, month){
+      setSubtitle(year, month);
+      updateStats(year, month);
+
+      const tbl = document.getElementById("tbl");
+      tbl.innerHTML = "";
+
+      const dim = daysInMonth(year, month);
+
+      // ===== Header row 1: Nama | BA | 1..dim | Absensi
+      const tr1 = document.createElement("tr");
+      tr1.className = "sticky-head-1";
+
+      tr1.appendChild(th("Nama Karyawan", "head-name w-name h-head text-left px-4 gridline sticky-col-1"));
+      tr1.appendChild(th("Divisi", "head-ba w-ba h-head text-center gridline sticky-col-2"));
+
+      for(let d=1; d<=dim; d++){
+        const isWeekendDay = isWeekend(year, month, d);
+        const extraClass = isWeekendDay ? "weekend-col" : "";
+        tr1.appendChild(th(String(d), `head-primary w-day h-head text-center font-bold gridline ${extraClass}`));
+      }
+
+      const thAbs = document.createElement("th");
+      thAbs.className = "head-secondary h-head text-center font-bold gridline";
+      thAbs.colSpan = 3;
+      thAbs.textContent = "Rekapitulasi";
+      tr1.appendChild(thAbs);
+
+      tbl.appendChild(tr1);
+
+      // ===== Header row 2: hari + L S A
+      const tr2 = document.createElement("tr");
+      tr2.className = "sticky-head-2";
+
+      tr2.appendChild(th("", "head-name w-name h-head gridline sticky-col-1"));
+      tr2.appendChild(th("", "head-ba w-ba h-head gridline sticky-col-2"));
+
+      for(let d=1; d<=dim; d++){
+        const dt = new Date(year, month-1, d);
+        const isWeekendDay = isWeekend(year, month, d);
+        const extraClass = isWeekendDay ? "weekend-col" : "";
+        tr2.appendChild(th(DOW_ID[dt.getDay()], `head-primary w-day h-head text-center font-semibold text-xs gridline ${extraClass}`));
+      }
+
+      tr2.appendChild(th("L", "h-head w-day text-center font-bold gridline bg-gradient-to-br from-red-500 to-red-600 text-white"));
+      tr2.appendChild(th("S", "h-head w-day text-center font-bold gridline bg-gradient-to-br from-pink-500 to-pink-600 text-white"));
+      tr2.appendChild(th("A", "h-head w-day text-center font-bold gridline bg-gradient-to-br from-yellow-500 to-yellow-600 text-white"));
+      tbl.appendChild(tr2);
+
+      // ===== Body
+      PEOPLE.forEach((p, idx) => {
+        const tr = document.createElement("tr");
+        tr.className = `${p.rowClass} h-row transition-all duration-200`;
+
+        // Nama & BA (sticky)
+        tr.appendChild(td(p.name, `w-name px-4 gridline sticky-col-1 ${p.rowClass} font-medium text-slate-700`));
+        tr.appendChild(td(p.ba, `w-ba text-center gridline sticky-col-2 ${p.rowClass} font-semibold text-xs`));
+
+        let countL=0, countS=0, countA=0;
+
+        for(let d=1; d<=dim; d++){
+          const dateStr = ymd(year, month, d);
+          const status = getStatus(p.name, dateStr);
+          const isWeekendDay = isWeekend(year, month, d);
+
+          const cell = document.createElement("td");
+          cell.className = `w-day text-center gridline font-semibold ${isWeekendDay ? 'weekend-col' : ''}`;
+          cell.textContent = status;
+
+          if (status === "L") {
+            cell.classList.add("cell-L");
+            countL++;
+          } else if (status === "S") {
+            cell.classList.add("cell-S");
+            countS++;
+          } else if (status === "A") {
+            cell.classList.add("cell-A");
+            countA++;
+          }
+
+          tr.appendChild(cell);
+        }
+
+        tr.appendChild(td(String(countL), "w-day text-center gridline font-bold text-red-600 bg-red-50"));
+        tr.appendChild(td(String(countS), "w-day text-center gridline font-bold text-pink-600 bg-pink-50"));
+        tr.appendChild(td(String(countA), "w-day text-center gridline font-bold text-yellow-600 bg-yellow-50"));
+
+        tbl.appendChild(tr);
+      });
+
+      // ===== Footer: total L per tanggal
+      const trF = document.createElement("tr");
+      trF.className = "bg-gradient-to-r from-slate-100 to-slate-200 font-semibold";
+
+      trF.appendChild(td("Total per Hari", "w-name gridline sticky-col-1 px-4 text-slate-700 font-bold"));
+      trF.appendChild(td("", "w-ba gridline sticky-col-2"));
+
+      for(let d=1; d<=dim; d++){
+        const dateStr = ymd(year, month, d);
+        const isWeekendDay = isWeekend(year, month, d);
+        let totalL = 0;
+        for (const p of PEOPLE) {
+          if (getStatus(p.name, dateStr) === "L") totalL++;
+        }
+        const extraClass = isWeekendDay ? "weekend-col" : "";
+        trF.appendChild(td(totalL > 0 ? String(totalL) : "·", `w-day text-center gridline text-xs text-slate-600 ${extraClass}`));
+      }
+
+      trF.appendChild(td("", "w-day gridline bg-slate-100"));
+      trF.appendChild(td("", "w-day gridline bg-slate-100"));
+      trF.appendChild(td("", "w-day gridline bg-slate-100"));
+      tbl.appendChild(trF);
+    }
+
+    // =========================
+    // E) INIT
+    // =========================
+    (function init(){
+      buildMonthOptions();
+
+      const monthSel = document.getElementById("monthSel");
+      const yearInp  = document.getElementById("yearInp");
+
+      // default realtime (bulan sekarang)
+      const now = new Date();
+      monthSel.value = String(now.getMonth()+1);
+      yearInp.value = String(now.getFullYear());
+      renderTable(now.getFullYear(), now.getMonth()+1);
+
+      document.getElementById("applyBtn").addEventListener("click", () => {
+        const y = parseInt(yearInp.value, 10);
+        const m = parseInt(monthSel.value, 10);
+        if(!y || !m || m < 1 || m > 12) return;
+        renderTable(y, m);
+      });
+
+      document.getElementById("presetBtn").addEventListener("click", () => {
+        yearInp.value = "2026";
+        monthSel.value = "2";
+        renderTable(2026, 2);
+      });
+    })();
+  </script>
+</body>
+</html>
