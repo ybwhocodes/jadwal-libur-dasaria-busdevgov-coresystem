@@ -51,6 +51,14 @@
     .row-blue:hover { background: #dbeafe; }
 
     /* Sel "L" dengan style modern */
+    .cell-I { 
+      background: #0891b2; 
+      color: #fff; 
+      font-weight: 700; 
+      border-radius: 0.25rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
     .cell-L { 
       background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); 
       color: #fff; 
@@ -208,6 +216,10 @@
           <span class="inline-block w-8 h-8 cell-A rounded text-center leading-8 text-xs">A</span>
           <span class="text-sm text-slate-600">Alpa</span>
         </div>
+        <div class="flex items-center gap-2">
+          <span class="inline-block w-8 h-8 cell-I rounded text-center leading-8 text-xs">I</span>
+          <span class="text-sm text-slate-600">Izin</span>
+        </div>
         <div class="ml-auto text-xs text-slate-500">
           💡 <span class="font-medium">Tip:</span> Scroll horizontal untuk melihat semua tanggal
         </div>
@@ -276,7 +288,7 @@
         "2026-02-01":"L", "2026-02-08":"L", "2026-02-14":"L", "2026-02-22":"L", "2026-02-23":"L"
       },
       "Muhammad Alif Nur Darwanzza": {
-         "2026-02-01":"L","2026-02-06":"", "2026-02-07":"L", "2026-02-15":"L","2026-02-16":"L", "2026-02-21":"L"
+         "2026-02-01":"L", "2026-02-07":"L","2026-02-09":"I", "2026-02-15":"L","2026-02-16":"L", "2026-02-21":"L"
       },
       "Merryvelliane Fitriatasa Fujianto": {
         "2026-02-08":"L","2026-02-09":"L", "2026-02-15":"L", "2026-02-21":"L", "2026-02-28":"L"
@@ -347,7 +359,7 @@
 
     function updateStats(year, month) {
       const dim = daysInMonth(year, month);
-      let totalL = 0, totalS = 0, totalA = 0;
+      let totalL = 0, totalS = 0, totalA = 0, totalI = 0;
       let totalWorkDays = dim * PEOPLE.length;
 
       PEOPLE.forEach(p => {
@@ -357,10 +369,11 @@
           if (status === "L") totalL++;
           else if (status === "S") totalS++;
           else if (status === "A") totalA++;
+          else if (status === "I") totalI++;
         }
       });
 
-      const totalPresent = totalWorkDays - totalL - totalS - totalA;
+      const totalPresent = totalWorkDays - totalL - totalS - totalI - totalA;
       const attendanceRate = ((totalPresent / totalWorkDays) * 100).toFixed(1);
 
       const statsHTML = `
@@ -382,6 +395,11 @@
         <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 text-white rounded-xl p-4 shadow-lg">
           <div class="text-sm opacity-90 mb-1">Total Alpa</div>
           <div class="text-3xl font-bold">${totalA}</div>
+          <div class="text-xs opacity-75 mt-1">tanpa keterangan</div>
+        </div>
+        <div class="bg-gradient-to-br from-cyan-500 to-cyan-600 text-white rounded-xl p-4 shadow-lg"> 
+          <div class="text-sm opacity-90 mb-1">Total Alpa</div>
+          <div class="text-3xl font-bold">${totalI}</div>
           <div class="text-xs opacity-75 mt-1">tanpa keterangan</div>
         </div>
       `;
@@ -420,7 +438,7 @@
 
       for(let d=1; d<=dim; d++){
         const isWeekendDay = isWeekend(year, month, d);
-        const extraClass = isWeekendDay ? "weekend-col" : "";
+        const extraClass = isWeekendDay ? "weekend-col" : "weekday-col";
         tr1.appendChild(th(String(d), `head-primary w-day h-head text-center font-bold gridline ${extraClass}`));
       }
 
@@ -442,13 +460,14 @@
       for(let d=1; d<=dim; d++){
         const dt = new Date(year, month-1, d);
         const isWeekendDay = isWeekend(year, month, d);
-        const extraClass = isWeekendDay ? "weekend-col" : "";
+        const extraClass = isWeekendDay ? "weekend-col" : "weekday-col";
         tr2.appendChild(th(DOW_ID[dt.getDay()], `head-primary w-day h-head text-center font-semibold text-xs gridline ${extraClass}`));
       }
 
       tr2.appendChild(th("L", "h-head w-day text-center font-bold gridline bg-gradient-to-br from-red-500 to-red-600 text-white"));
       tr2.appendChild(th("S", "h-head w-day text-center font-bold gridline bg-gradient-to-br from-pink-500 to-pink-600 text-white"));
       tr2.appendChild(th("A", "h-head w-day text-center font-bold gridline bg-gradient-to-br from-yellow-500 to-yellow-600 text-white"));
+      tr2.appendChild(th("I", "h-head w-day text-center font-bold gridline bg-gradient-to-br from-cyan-500 to-cyan-600 text-white"));
       tbl.appendChild(tr2);
 
       // ===== Body
@@ -460,7 +479,7 @@
         tr.appendChild(td(p.name, `w-name px-4 gridline sticky-col-1 ${p.rowClass} font-medium text-slate-700`));
         tr.appendChild(td(p.ba, `w-ba text-center gridline sticky-col-2 ${p.rowClass} font-semibold text-xs`));
 
-        let countL=0, countS=0, countA=0;
+        let countL=0, countS=0, countA=0, countI=0;
 
         for(let d=1; d<=dim; d++){
           const dateStr = ymd(year, month, d);
@@ -468,7 +487,7 @@
           const isWeekendDay = isWeekend(year, month, d);
 
           const cell = document.createElement("td");
-          cell.className = `w-day text-center gridline font-semibold ${isWeekendDay ? 'weekend-col' : ''}`;
+          cell.className = `w-day text-center gridline font-semibold ${isWeekendDay ? 'weekend-col' : 'weekday-col'}`;
           cell.textContent = status;
 
           if (status === "L") {
@@ -480,6 +499,9 @@
           } else if (status === "A") {
             cell.classList.add("cell-A");
             countA++;
+          }  else if (status === "I") {
+            cell.classList.add("cell-I");
+            countI++;
           }
 
           tr.appendChild(cell);
@@ -488,6 +510,7 @@
         tr.appendChild(td(String(countL), "w-day text-center gridline font-bold text-red-600 bg-red-50"));
         tr.appendChild(td(String(countS), "w-day text-center gridline font-bold text-pink-600 bg-pink-50"));
         tr.appendChild(td(String(countA), "w-day text-center gridline font-bold text-yellow-600 bg-yellow-50"));
+        tr.appendChild(td(String(countI), "w-day text-center gridline font-bold text-cyan-600 bg-cyan-50"));
 
         tbl.appendChild(tr);
       });
@@ -506,7 +529,7 @@
         for (const p of PEOPLE) {
           if (getStatus(p.name, dateStr) === "L") totalL++;
         }
-        const extraClass = isWeekendDay ? "weekend-col" : "";
+        const extraClass = isWeekendDay ? "weekend-col" : "weekday-col";
         trF.appendChild(td(totalL > 0 ? String(totalL) : "·", `w-day text-center gridline text-xs text-slate-600 ${extraClass}`));
       }
 
