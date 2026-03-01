@@ -1,0 +1,102 @@
+insert into attendance (employee_id, attendance_date, status)
+select e.id, v.attendance_date, v.status
+from employees e
+join (
+  values
+  -- R. Billyan Mulkan Ghifari
+  ('R. Billyan Mulkan Ghifari','2026-02-07'::date,'L'),
+  ('R. Billyan Mulkan Ghifari','2026-02-15'::date,'L'),
+  ('R. Billyan Mulkan Ghifari','2026-02-22'::date,'L'),
+  ('R. Billyan Mulkan Ghifari','2026-02-23'::date,'L'),
+  ('R. Billyan Mulkan Ghifari','2026-02-28'::date,'L'),
+
+  -- Dedik Hasanah Wijaya
+  ('Dedik Hasanah Wijaya','2026-02-01'::date,'L'),
+  ('Dedik Hasanah Wijaya','2026-02-07'::date,'L'),
+  ('Dedik Hasanah Wijaya','2026-02-14'::date,'L'),
+  ('Dedik Hasanah Wijaya','2026-02-17'::date,'L'),
+  ('Dedik Hasanah Wijaya','2026-02-22'::date,'L'),
+
+  -- Nur Huda Riyanto
+  ('Nur Huda Riyanto','2026-02-08'::date,'L'),
+  ('Nur Huda Riyanto','2026-02-17'::date,'L'),
+  ('Nur Huda Riyanto','2026-02-18'::date,'L'),
+  ('Nur Huda Riyanto','2026-02-22'::date,'L'),
+  ('Nur Huda Riyanto','2026-02-28'::date,'L'),
+
+  -- Eka Mira Novita Subroto
+  ('Eka Mira Novita Subroto','2026-02-01'::date,'L'),
+  ('Eka Mira Novita Subroto','2026-02-07'::date,'L'),
+  ('Eka Mira Novita Subroto','2026-02-14'::date,'L'),
+  ('Eka Mira Novita Subroto','2026-02-17'::date,'L'),
+  ('Eka Mira Novita Subroto','2026-02-21'::date,'L'),
+
+  -- Yusuf Ananta Tirtojojo
+  ('Yusuf Ananta Tirtojojo','2026-02-08'::date,'L'),
+  ('Yusuf Ananta Tirtojojo','2026-02-15'::date,'L'),
+  ('Yusuf Ananta Tirtojojo','2026-02-16'::date,'L'),
+  ('Yusuf Ananta Tirtojojo','2026-02-22'::date,'L'),
+  ('Yusuf Ananta Tirtojojo','2026-02-28'::date,'L'),
+
+  -- Faradhila Putri Kusuma
+  ('Faradhila Putri Kusuma','2026-02-01'::date,'L'),
+  ('Faradhila Putri Kusuma','2026-02-08'::date,'L'),
+  ('Faradhila Putri Kusuma','2026-02-14'::date,'L'),
+  ('Faradhila Putri Kusuma','2026-02-22'::date,'L'),
+  ('Faradhila Putri Kusuma','2026-02-23'::date,'L'),
+
+  -- Muhammad Alif Nur Darwanzza
+  ('Muhammad Alif Nur Darwanzza','2026-02-01'::date,'L'),
+  ('Muhammad Alif Nur Darwanzza','2026-02-07'::date,'L'),
+  ('Muhammad Alif Nur Darwanzza','2026-02-09'::date,'I'),
+  ('Muhammad Alif Nur Darwanzza','2026-02-15'::date,'L'),
+  ('Muhammad Alif Nur Darwanzza','2026-02-16'::date,'L'),
+  ('Muhammad Alif Nur Darwanzza','2026-02-21'::date,'L'),
+
+  -- Merryvelliane Fitriatasa Fujianto
+  ('Merryvelliane Fitriatasa Fujianto','2026-02-08'::date,'L'),
+  ('Merryvelliane Fitriatasa Fujianto','2026-02-09'::date,'L'),
+  ('Merryvelliane Fitriatasa Fujianto','2026-02-15'::date,'L'),
+  ('Merryvelliane Fitriatasa Fujianto','2026-02-21'::date,'L'),
+  ('Merryvelliane Fitriatasa Fujianto','2026-02-28'::date,'L'),
+
+  -- Shofy Pramesti Putri Guruh
+  ('Shofy Pramesti Putri Guruh','2026-02-01'::date,'L'),
+  ('Shofy Pramesti Putri Guruh','2026-02-02'::date,'L'),
+  ('Shofy Pramesti Putri Guruh','2026-02-03'::date,'A'),
+  ('Shofy Pramesti Putri Guruh','2026-02-04'::date,'A'),
+  ('Shofy Pramesti Putri Guruh','2026-02-05'::date,'A'),
+  ('Shofy Pramesti Putri Guruh','2026-02-06'::date,'A'),
+  ('Shofy Pramesti Putri Guruh','2026-02-07'::date,'L'),
+  ('Shofy Pramesti Putri Guruh','2026-02-08'::date,'A'),
+  ('Shofy Pramesti Putri Guruh','2026-02-09'::date,'A'),
+  ('Shofy Pramesti Putri Guruh','2026-02-10'::date,'A'),
+  ('Shofy Pramesti Putri Guruh','2026-02-11'::date,'A'),
+  ('Shofy Pramesti Putri Guruh','2026-02-12'::date,'A'),
+  ('Shofy Pramesti Putri Guruh','2026-02-13'::date,'A'),
+  ('Shofy Pramesti Putri Guruh','2026-02-14'::date,'L'),
+  ('Shofy Pramesti Putri Guruh','2026-02-21'::date,'L'),
+
+  -- Rafi Rabani Raihan
+  ('Rafi Rabani Raihan','2026-02-08'::date,'L'),
+  ('Rafi Rabani Raihan','2026-02-15'::date,'L'),
+  ('Rafi Rabani Raihan','2026-02-17'::date,'L'),
+  ('Rafi Rabani Raihan','2026-02-22'::date,'L'),
+  ('Rafi Rabani Raihan','2026-02-28'::date,'L'),
+
+  -- Brian Aldy Bramasta
+  ('Brian Aldy Bramasta','2026-02-01'::date,'L'),
+  ('Brian Aldy Bramasta','2026-02-07'::date,'L'),
+  ('Brian Aldy Bramasta','2026-02-14'::date,'L'),
+  ('Brian Aldy Bramasta','2026-02-17'::date,'L'),
+  ('Brian Aldy Bramasta','2026-02-21'::date,'L'),
+
+  -- Mohammad Rizal Maulana Najib
+  ('Mohammad Rizal Maulana Najib','2026-02-01'::date,'L'),
+  ('Mohammad Rizal Maulana Najib','2026-02-08'::date,'L'),
+  ('Mohammad Rizal Maulana Najib','2026-02-15'::date,'L'),
+  ('Mohammad Rizal Maulana Najib','2026-02-22'::date,'L'),
+  ('Mohammad Rizal Maulana Najib','2026-02-28'::date,'L')
+
+) as v(name, attendance_date, status)
+on e.name = v.name;
