@@ -271,19 +271,27 @@
               ✓ Terapkan
             </button>
 
-            <button
-              id="presetBtn"
-              class="btn-secondary border-2 border-slate-300 rounded-lg px-5 py-2.5 text-sm font-medium hover:bg-slate-50"
-            >
-              🎯 Preset Feb 2026
-            </button>
+            <div class="flex items-center gap-3">
+              <div
+                id="nowBadge"
+                class="text-xs font-medium text-slate-600 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2"
+              >
+                Sekarang: -
+              </div>
+              <button
+                id="presetBtn"
+                class="btn-secondary border-2 border-slate-300 rounded-lg px-5 py-2.5 text-sm font-medium hover:bg-slate-50"
+              >
+                🕒 Bulan ini
+              </button>
+            </div>
           </div>
         </div>
 
         <!-- Stats Summary -->
         <div
           id="statsContainer"
-          class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6"
+          class="grid grid-cols-1 md:grid-cols-5 gap-4 mt-6"
         >
           <!-- Stats akan di-generate oleh JavaScript -->
         </div>
@@ -385,6 +393,15 @@
           "November",
           "Desember",
         ][m - 1];
+      }
+
+      function updateNowBadge() {
+        const el = document.getElementById("nowBadge");
+        if (!el) return;
+        const now = new Date();
+        const month = now.getMonth() + 1;
+        const year = now.getFullYear();
+        el.textContent = `Sekarang: ${monthNameID(month)} ${year}`;
       }
       function isWeekend(y, m, d) {
         const dt = new Date(y, m - 1, d);
@@ -578,10 +595,22 @@
         monthSel.value = now.getMonth() + 1;
         yearInp.value = now.getFullYear();
 
+        updateNowBadge();
+        setInterval(updateNowBadge, 60 * 1000);
+
         loadData(now.getFullYear(), now.getMonth() + 1);
 
         document.getElementById("applyBtn").addEventListener("click", () => {
           loadData(parseInt(yearInp.value), parseInt(monthSel.value));
+        });
+
+        document.getElementById("presetBtn").addEventListener("click", () => {
+          const now = new Date();
+          const y = now.getFullYear();
+          const m = now.getMonth() + 1;
+          yearInp.value = String(y);
+          monthSel.value = String(m);
+          loadData(y, m);
         });
       })();
     </script>
