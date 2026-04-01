@@ -418,7 +418,7 @@
         const { data: employees } = await supabaseClient
           .from("employees")
           .select("*")
-          .order("created_at", { ascending: true });
+          .order("number", { ascending: true });
 
         PEOPLE = (employees || []).map((e) => ({
           id: e.id,
