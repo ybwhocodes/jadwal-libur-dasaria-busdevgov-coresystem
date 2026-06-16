@@ -1,0 +1,113 @@
+# Dokumentasi Struktur Database Supabase
+
+Dokumentasi ini menjelaskan struktur database Supabase yang digunakan untuk sistem jadwal libur karyawan. Database memiliki dua tabel utama: `employees` dan `attendance`.
+
+## Entity Relationship Diagram
+
+```mermaid
+erDiagram
+  employees ||--o{ attendance : has
+
+  employees {
+    uuid id PK
+    text name
+    text division
+    text row_class
+    timestamptz created_at
+    directorat directorat
+    int8 number
+  }
+
+  attendance {
+    uuid id PK
+    uuid employee_id FK
+    date attendance_date
+    text status
+    timestamptz created_at
+    text information
+  }
+```
+
+## Tabel `employees`
+
+Tabel `employees` menyimpan data karyawan.
+
+| Kolom | Tipe Data | Keterangan |
+|---|---|---|
+| `id` | `uuid` | Primary key unik setiap karyawan. |
+| `name` | `text` | Nama lengkap karyawan. |
+| `division` | `text` | Divisi karyawan, contoh: `UI/UX`, `FS`, `BA`, `PM`, `BI`, `BE`, `FE`, `KDBO`, `KDCS`. |
+| `row_class` | `text` | Class CSS untuk styling baris di frontend, contoh: `row-pink`, `row-green`. |
+| `created_at` | `timestamptz` | Waktu data dibuat. |
+| `directorat` | `directorat` | Nilai `IT`, `BD`, atau `Lead`. |
+| `number` | `int8` | Nomor urut tampilan di frontend. |
+
+### Aturan Data
+
+- `directorat` berisi `IT`, `BD`, atau `Lead`.
+- `Lead` diperlakukan khusus: muncul di kedua tab frontend (IT dan BD).
+- Urutan data di frontend menggunakan kolom `number` secara ascending.
+
+## Tabel `attendance`
+
+Tabel `attendance` menyimpan data jadwal libur atau absensi karyawan.
+
+| Kolom | Tipe Data | Keterangan |
+|---|---|---|
+| `id` | `uuid` | Primary key unik setiap catatan. |
+| `employee_id` | `uuid` | Foreign key ke `employees.id`. |
+| `attendance_date` | `date` | Tanggal jadwal atau libur. |
+| `status` | `text` | Status: `L` (Libur), `I` (Izin), `S` (Sakit). |
+| `created_at` | `timestamptz` | Waktu data dibuat. |
+| `information` | `text` | Keterangan tambahan, contoh: "Cuti bersama", "Libur pengganti", "Jadwal off". |
+
+### Aturan Data
+
+- `employee_id` wajib merujuk ke `employees.id` yang valid.
+- Kombinasi `employee_id` + `attendance_date` bersifat unik (tidak boleh duplikat).
+- `status` hanya berisi `L`, `I`, atau `S`.
+
+## Relasi Antar Tabel
+
+Satu karyawan (`employees`) dapat memiliki banyak catatan jadwal libur (`attendance`). Relasi:
+
+```
+employees.id = attendance.employee_id
+```
+
+## Mapping Directorat untuk Frontend
+
+```js
+const tabs = [
+  { key: "IT", label: "Informatics Technology", filter: ["IT", "Lead"] },
+  { key: "BD", label: "Business Development",  filter: ["BD", "Lead"] },
+];
+```
+
+Tab **Informatics Technology** menampilkan data `directorat = "IT"` atau `"Lead"`.
+Tab **Business Development** menampilkan data `directorat = "BD"` atau `"Lead"`.
+
+## Draft SQL
+
+```sql
+create type directorat as enum ('IT', 'BD', 'Lead');
+
+create table public.employees (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  division text,
+  row_class text,
+  created_at timestamptz default now(),
+  directorat directorat not null,
+  number int8
+);
+
+create table public.attendance (
+  id uuid primary key default gen_random_uuid(),
+  employee_id uuid not null references public.employees(id) on delete cascade,
+  attendance_date date not null,
+  status text not null default 'L',
+  created_at timestamptz default now(),
+  information text
+);
+```

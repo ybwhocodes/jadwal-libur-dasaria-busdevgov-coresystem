@@ -1,0 +1,1093 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Admin - Jadwal Libur</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      * { font-family: "Inter", sans-serif; }
+
+      .card {
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        padding: 1.5rem;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        transition: all 0.3s ease;
+      }
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(102, 126, 234, 0.4);
+      }
+
+      .btn-danger {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        transition: all 0.3s ease;
+      }
+      .btn-danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(239, 68, 68, 0.4);
+      }
+
+      .btn-success {
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        transition: all 0.3s ease;
+      }
+      .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(34, 197, 94, 0.4);
+      }
+
+      .btn-warning {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        transition: all 0.3s ease;
+      }
+      .btn-warning:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(245, 158, 11, 0.4);
+      }
+
+      .btn-outline {
+        border: 2px solid #e2e8f0;
+        transition: all 0.2s ease;
+      }
+      .btn-outline:hover { border-color: #667eea; background: #f0f0ff; }
+
+      input, select, textarea {
+        border: 2px solid #e2e8f0;
+        border-radius: 0.75rem;
+        padding: 0.625rem 1rem;
+        font-size: 0.875rem;
+        transition: border-color 0.2s;
+        outline: none;
+      }
+      input:focus, select:focus, textarea:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102,126,234,0.15);
+      }
+
+      .date-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        background: #eef2ff;
+        color: #4338ca;
+        padding: 0.375rem 0.75rem;
+        border-radius: 999px;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        border: 1px solid #c7d2fe;
+      }
+      .date-chip button {
+        background: none; border: none; cursor: pointer;
+        color: #6366f1; font-weight: 700; font-size: 1rem;
+        line-height: 1; padding: 0 0.125rem;
+      }
+      .date-chip button:hover { color: #dc2626; }
+
+      .emp-check { accent-color: #667eea; }
+
+      #loginOverlay {
+        position: fixed; inset: 0;
+        background: rgba(0,0,0,0.5);
+        backdrop-filter: blur(8px);
+        display: flex; align-items: center; justify-content: center;
+        z-index: 100;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .fade-in { animation: fadeIn 0.4s ease-out; }
+      .hidden { display: none !important; }
+
+      .scroll-emp {
+        max-height: 240px; overflow-y: auto;
+        border: 2px solid #e2e8f0; border-radius: 0.75rem; padding: 0.5rem;
+      }
+      .scroll-emp::-webkit-scrollbar { width: 6px; }
+      .scroll-emp::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 6px; }
+      .scroll-emp::-webkit-scrollbar-thumb { background: #c7d2fe; border-radius: 6px; }
+
+      .summary-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+      .summary-table th {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white; padding: 0.625rem 0.75rem; text-align: left; font-weight: 600;
+      }
+      .summary-table td { padding: 0.5rem 0.75rem; border-bottom: 1px solid #e2e8f0; }
+      .summary-table tr:hover td { background: #f8faff; }
+
+      .tab-btn {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.875rem; font-weight: 600;
+        border-radius: 0.75rem; transition: all 0.2s ease;
+        cursor: pointer; border: 2px solid transparent;
+      }
+      .tab-btn:hover { transform: translateY(-1px); }
+      .tab-btn.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white; box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+      }
+      .tab-btn:not(.active) {
+        background: #f1f5f9; color: #64748b; border-color: #e2e8f0;
+      }
+      .tab-btn:not(.active):hover { background: #e2e8f0; color: #334155; }
+
+      .mode-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.8125rem; font-weight: 500;
+        border-radius: 0.5rem; transition: all 0.2s ease;
+        cursor: pointer; border: 2px solid transparent;
+      }
+      .mode-btn.active {
+        background: #eef2ff; color: #4338ca; border-color: #a5b4fc;
+      }
+      .mode-btn:not(.active) {
+        background: #f8fafc; color: #94a3b8; border-color: #e2e8f0;
+      }
+      .mode-btn:not(.active):hover { background: #f1f5f9; color: #475569; }
+
+      select optgroup { font-weight: 600; color: #334155; }
+
+      .toast {
+        position: fixed; bottom: 2rem; right: 2rem;
+        padding: 1rem 1.5rem; border-radius: 0.75rem;
+        color: white; font-weight: 500; font-size: 0.875rem;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        z-index: 200; animation: fadeIn 0.3s ease-out;
+      }
+      .toast-success { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); }
+      .toast-error { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+    </style>
+  </head>
+
+  <body class="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen">
+    <!-- LOGIN OVERLAY -->
+    <div id="loginOverlay">
+      <div class="card fade-in w-full max-w-md mx-4">
+        <div class="text-center mb-6">
+          <h1 class="text-2xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+            Admin Panel
+          </h1>
+          <p class="text-sm text-slate-500 mt-1">Masuk untuk mengelola jadwal libur</p>
+        </div>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Username</label>
+            <input id="loginUser" type="text" class="w-full" placeholder="Masukkan username" autocomplete="off" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Password</label>
+            <input id="loginPass" type="password" class="w-full" placeholder="Masukkan password" />
+          </div>
+          <p id="loginError" class="text-red-500 text-sm hidden"></p>
+          <button id="loginBtn" class="btn-primary text-white w-full rounded-lg py-2.5 text-sm font-medium shadow-md">
+            Masuk
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADMIN PANEL -->
+    <div id="adminPanel" class="hidden max-w-6xl mx-auto p-6">
+      <!-- Header -->
+      <div class="card mb-6 fade-in">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h1 class="text-3xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+              Admin Jadwal Libur
+            </h1>
+            <p class="text-sm text-slate-500 mt-1" id="adminSubtitle">Memuat data...</p>
+          </div>
+          <button id="logoutBtn" class="btn-outline rounded-lg px-4 py-2 text-sm font-medium text-slate-600">
+            Keluar
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab Navigation -->
+      <div class="card mb-6 fade-in">
+        <div class="flex flex-wrap items-center gap-3" id="mainTabContainer">
+          <button class="tab-btn active" data-tab="add">Tambah Jadwal Libur</button>
+          <button class="tab-btn" data-tab="swap">Tukar Libur</button>
+          <button class="tab-btn" data-tab="permit">List Perizinan</button>
+        </div>
+      </div>
+
+      <!-- ================================================================== -->
+      <!-- TAB 1: TAMBAH JADWAL LIBUR                                        -->
+      <!-- ================================================================== -->
+      <div id="tabAdd" class="tab-content">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="card fade-in">
+            <h2 class="text-lg font-semibold text-slate-800 mb-3">Pilih Karyawan</h2>
+            <div class="mb-3">
+              <input id="empSearch" type="text" class="w-full" placeholder="Cari karyawan..." />
+            </div>
+            <div class="flex items-center gap-2 mb-2 text-xs">
+              <button id="selectAllEmp" class="text-indigo-600 hover:underline font-medium">Pilih Semua</button>
+              <span class="text-slate-300">|</span>
+              <button id="deselectAllEmp" class="text-slate-500 hover:underline">Hapus Semua</button>
+              <span class="ml-auto text-slate-400" id="empCount">0 terpilih</span>
+            </div>
+            <div id="employeeList" class="scroll-emp"></div>
+          </div>
+
+          <div class="card fade-in">
+            <h2 class="text-lg font-semibold text-slate-800 mb-3">Pilih Tanggal &amp; Status</h2>
+            <div class="flex flex-wrap items-center gap-2 mb-3">
+              <input id="dateInput" type="date" class="flex-1 min-w-0" />
+              <button id="addDateBtn" class="btn-primary text-white rounded-lg px-4 py-2.5 text-sm font-medium shadow-md whitespace-nowrap">
+                + Tambah
+              </button>
+            </div>
+            <div class="mb-3 p-3 bg-slate-50 rounded-xl">
+              <span class="text-xs font-medium text-slate-500">Status:</span>
+              <div class="flex items-center gap-4 mt-1.5">
+                <label class="flex items-center gap-1.5 text-sm cursor-pointer">
+                  <input type="radio" name="statusRadio" value="L" checked class="text-indigo-600" />
+                  <span class="w-5 h-5 rounded text-center text-xs font-bold leading-5 text-white" style="background:linear-gradient(135deg,#ef4444,#dc2626)">L</span> Libur
+                </label>
+                <label class="flex items-center gap-1.5 text-sm cursor-pointer">
+                  <input type="radio" name="statusRadio" value="I" class="text-indigo-600" />
+                  <span class="w-5 h-5 rounded text-center text-xs font-bold leading-5 text-white" style="background:#0891b2">I</span> Izin
+                </label>
+                <label class="flex items-center gap-1.5 text-sm cursor-pointer">
+                  <input type="radio" name="statusRadio" value="S" class="text-indigo-600" />
+                  <span class="w-5 h-5 rounded text-center text-xs font-bold leading-5 text-white" style="background:linear-gradient(135deg,#ec4899,#db2777)">S</span> Sakit
+                </label>
+              </div>
+            </div>
+            <div id="selectedDates" class="flex flex-wrap gap-2 min-h-[2.5rem] p-2">
+              <span class="text-xs text-slate-400 italic">Belum ada tanggal dipilih</span>
+            </div>
+            <div class="flex items-center justify-between mt-3 text-xs">
+              <span class="text-slate-400" id="dateCount">0 tanggal</span>
+              <button id="clearDatesBtn" class="text-red-500 hover:underline font-medium">Hapus Semua Tanggal</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mt-6 fade-in">
+          <h2 class="text-lg font-semibold text-slate-800 mb-3">Keterangan (opsional)</h2>
+          <textarea id="notesInput" class="w-full resize-none" rows="2" placeholder="Misal: Libur bersama, Cuti tahunan, jadwal off, dll."></textarea>
+        </div>
+
+        <div class="card mt-6 fade-in">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-lg font-semibold text-slate-800">Ringkasan Data</h2>
+            <span id="summaryCount" class="text-sm font-medium text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">0 data</span>
+          </div>
+          <div id="summaryContainer" class="overflow-x-auto">
+            <p class="text-sm text-slate-400 italic">Pilih karyawan dan tanggal untuk melihat ringkasan.</p>
+          </div>
+        </div>
+
+        <div class="mt-6 flex flex-wrap items-center justify-end gap-3">
+          <p id="submitInfo" class="text-sm text-slate-500 flex-1"></p>
+          <button id="resetBtn" class="btn-outline rounded-lg px-5 py-2.5 text-sm font-medium">Reset</button>
+          <button id="submitBtn" class="btn-success text-white rounded-lg px-6 py-2.5 text-sm font-medium shadow-md" disabled>Simpan Semua</button>
+        </div>
+      </div>
+
+      <!-- ================================================================== -->
+      <!-- TAB 2: TUKAR LIBUR                                                -->
+      <!-- ================================================================== -->
+      <div id="tabSwap" class="tab-content hidden">
+        <!-- Mode selector -->
+        <div class="card mb-6 fade-in">
+          <div class="flex flex-wrap items-center gap-3" id="swapModeContainer">
+            <span class="text-sm font-medium text-slate-600">Pilih mode:</span>
+            <button class="mode-btn active" data-mode="swap-employee">Tukar dengan Karyawan Lain</button>
+            <button class="mode-btn" data-mode="move-date">Tukar ke Jadwal Lain</button>
+          </div>
+        </div>
+
+        <!-- SUB-FLOW 1: Tukar dengan Karyawan Lain -->
+        <div id="swapModeEmployee" class="swap-mode">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="card fade-in">
+              <h2 class="text-lg font-semibold text-slate-800 mb-3">Karyawan Pertama (A)</h2>
+              <div class="mb-3">
+                <select id="swapEmpA" class="w-full"><option value="">-- Pilih Karyawan --</option></select>
+              </div>
+              <div class="mb-2">
+                <label class="text-xs font-medium text-slate-500">Tanggal Libur A:</label>
+                <select id="swapDateA" class="w-full mt-1" disabled><option value="">-- Pilih Karyawan dulu --</option></select>
+              </div>
+            </div>
+            <div class="card fade-in">
+              <h2 class="text-lg font-semibold text-slate-800 mb-3">Karyawan Kedua (B)</h2>
+              <div class="mb-3">
+                <select id="swapEmpB" class="w-full"><option value="">-- Pilih Karyawan --</option></select>
+              </div>
+              <div class="mb-2">
+                <label class="text-xs font-medium text-slate-500">Tanggal Libur B:</label>
+                <select id="swapDateB" class="w-full mt-1" disabled><option value="">-- Pilih Karyawan dulu --</option></select>
+              </div>
+            </div>
+          </div>
+
+          <div class="card mt-6 fade-in">
+            <div class="flex items-center justify-between mb-3">
+              <h2 class="text-lg font-semibold text-slate-800">Ringkasan Tukar</h2>
+            </div>
+            <div id="swapSummary" class="overflow-x-auto">
+              <p class="text-sm text-slate-400 italic">Pilih karyawan dan tanggal untuk melihat ringkasan.</p>
+            </div>
+          </div>
+
+          <div class="mt-6 flex items-center justify-end gap-3">
+            <button id="swapResetBtn" class="btn-outline rounded-lg px-5 py-2.5 text-sm font-medium">Reset</button>
+            <button id="swapExecuteBtn" class="btn-warning text-white rounded-lg px-6 py-2.5 text-sm font-medium shadow-md" disabled>Tukarkan</button>
+          </div>
+        </div>
+
+        <!-- SUB-FLOW 2: Tukar ke Jadwal Lain -->
+        <div id="swapModeMove" class="swap-mode hidden">
+          <div class="card fade-in">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1">Karyawan</label>
+                <select id="moveEmp" class="w-full"><option value="">-- Pilih Karyawan --</option></select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1">Tanggal Libur Lama</label>
+                <select id="moveOldDate" class="w-full" disabled><option value="">-- Pilih Karyawan dulu --</option></select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1">Tanggal Baru</label>
+                <input id="moveNewDate" type="date" class="w-full" />
+              </div>
+            </div>
+          </div>
+
+          <div class="card mt-6 fade-in">
+            <div class="flex items-center justify-between mb-3">
+              <h2 class="text-lg font-semibold text-slate-800">Ringkasan Perubahan</h2>
+            </div>
+            <div id="moveSummary" class="overflow-x-auto">
+              <p class="text-sm text-slate-400 italic">Pilih karyawan dan tanggal untuk melihat ringkasan.</p>
+            </div>
+          </div>
+
+          <div class="mt-6 flex items-center justify-end gap-3">
+            <button id="moveResetBtn" class="btn-outline rounded-lg px-5 py-2.5 text-sm font-medium">Reset</button>
+            <button id="moveExecuteBtn" class="btn-warning text-white rounded-lg px-6 py-2.5 text-sm font-medium shadow-md" disabled>Pindahkan</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================================================================== -->
+      <!-- TAB 3: LIST PERIZINAN                                              -->
+      <!-- ================================================================== -->
+      <div id="tabPermit" class="tab-content hidden">
+        <div class="card mb-6 fade-in">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <h2 class="text-lg font-semibold text-slate-800">Data Perizinan (Izin &amp; Sakit)</h2>
+            <div class="flex items-center gap-2">
+              <input id="permitMonth" type="month" class="text-sm py-1.5" />
+              <button id="refreshPermitBtn" class="btn-outline rounded-lg px-3 py-1.5 text-xs font-medium">Perbarui</button>
+            </div>
+          </div>
+        </div>
+        <div id="permitContainer" class="overflow-x-auto">
+          <p class="text-sm text-slate-400 italic">Memuat data...</p>
+        </div>
+      </div>
+
+    </div>
+
+    <script>
+      const SUPABASE_URL = "https://rawbnpkygbvwelkmldwt.supabase.co";
+      const SUPABASE_KEY = "sb_publishable_J69nxLQqbfWKRwv2Iv4wwQ_UvvVDfRf";
+      const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+      const MONTHS_SHORT = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+      const STATUS_LABEL = { L: "Libur", I: "Izin", S: "Sakit" };
+
+      // ====================================================================
+      // STATE
+      // ====================================================================
+      let allEmployees = [];
+      let isLoggedIn = false;
+      let currentTab = "add";
+
+      // Tambah state
+      let selectedEmployeeIds = new Set();
+      let selectedDates = [];
+
+      // Tukar state
+      let empALeaveDates = [];
+      let empBLeaveDates = [];
+      let empMoveLeaveDates = [];
+
+      // ====================================================================
+      // LOGIN
+      // ====================================================================
+      const VALID_USER = "dasar_ria";
+      const VALID_PASS = "baikbaik";
+
+      function checkSession() { return sessionStorage.getItem("admin_logged_in") === "true"; }
+
+      function showLogin() {
+        document.getElementById("loginOverlay").classList.remove("hidden");
+        document.getElementById("adminPanel").classList.add("hidden");
+        isLoggedIn = false;
+      }
+
+      function showAdmin() {
+        document.getElementById("loginOverlay").classList.add("hidden");
+        document.getElementById("adminPanel").classList.remove("hidden");
+        isLoggedIn = true;
+        initPermitMonthPicker();
+        loadEmployees();
+      }
+
+      document.getElementById("loginBtn").addEventListener("click", () => {
+        const user = document.getElementById("loginUser").value.trim();
+        const pass = document.getElementById("loginPass").value;
+        if (user === VALID_USER && pass === VALID_PASS) {
+          sessionStorage.setItem("admin_logged_in", "true");
+          document.getElementById("loginError").classList.add("hidden");
+          showAdmin();
+        } else {
+          document.getElementById("loginError").textContent = "Login gagal. Username atau password tidak valid.";
+          document.getElementById("loginError").classList.remove("hidden");
+        }
+      });
+      document.getElementById("loginPass").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") document.getElementById("loginBtn").click();
+      });
+      document.getElementById("loginUser").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") document.getElementById("loginPass").focus();
+      });
+      document.getElementById("logoutBtn").addEventListener("click", () => {
+        sessionStorage.removeItem("admin_logged_in");
+        showLogin();
+      });
+      if (checkSession()) showAdmin();
+
+      // ====================================================================
+      // TAB SWITCHING
+      // ====================================================================
+      document.getElementById("mainTabContainer").addEventListener("click", (e) => {
+        const btn = e.target.closest(".tab-btn");
+        if (!btn) return;
+        document.querySelectorAll("#mainTabContainer .tab-btn").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentTab = btn.dataset.tab;
+        document.querySelectorAll(".tab-content").forEach((el) => el.classList.add("hidden"));
+        document.getElementById("tab" + currentTab.charAt(0).toUpperCase() + currentTab.slice(1)).classList.remove("hidden");
+      });
+
+      // ====================================================================
+      // EMPLOYEES (shared)
+      // ====================================================================
+      async function loadEmployees() {
+        document.getElementById("adminSubtitle").textContent = "Memuat data...";
+        const { data, error } = await supabaseClient
+          .from("employees")
+          .select("id, name, division, directorat")
+          .order("number", { ascending: true });
+        if (error) { showToast("Gagal memuat data karyawan", "error"); return; }
+        allEmployees = data || [];
+        document.getElementById("adminSubtitle").textContent = `${allEmployees.length} karyawan tersedia`;
+        renderEmployeeList();
+        populateSwapSelects();
+        loadPermitData();
+      }
+
+      // ====================================================================
+      // TAMBAH JADWAL LIBUR — Employee List
+      // ====================================================================
+      function renderEmployeeList(filter = "") {
+        const container = document.getElementById("employeeList");
+        container.innerHTML = "";
+        const filtered = filter ? allEmployees.filter(e =>
+          e.name.toLowerCase().includes(filter.toLowerCase()) ||
+          (e.division && e.division.toLowerCase().includes(filter.toLowerCase()))
+        ) : allEmployees;
+        if (filtered.length === 0) {
+          container.innerHTML = '<p class="text-sm text-slate-400 text-center py-6">Tidak ada karyawan ditemukan.</p>';
+          return;
+        }
+        filtered.forEach((e) => {
+          const label = document.createElement("label");
+          label.className = "flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-50 cursor-pointer transition-colors";
+          const cb = document.createElement("input");
+          cb.type = "checkbox"; cb.className = "emp-check w-4 h-4";
+          cb.checked = selectedEmployeeIds.has(e.id);
+          cb.addEventListener("change", () => {
+            if (cb.checked) selectedEmployeeIds.add(e.id);
+            else selectedEmployeeIds.delete(e.id);
+            updateAddSummary();
+          });
+          const info = document.createElement("div");
+          info.className = "flex-1 min-w-0";
+          info.innerHTML = `<div class="text-sm font-medium text-slate-800 truncate">${e.name}</div>
+            <div class="text-xs text-slate-400">${e.division || "-"} ${e.directorat ? "&middot; " + e.directorat : ""}</div>`;
+          label.appendChild(cb); label.appendChild(info); container.appendChild(label);
+        });
+        updateAddSummary();
+      }
+
+      document.getElementById("empSearch").addEventListener("input", (e) => renderEmployeeList(e.target.value));
+      document.getElementById("selectAllEmp").addEventListener("click", () => {
+        allEmployees.forEach((e) => selectedEmployeeIds.add(e.id));
+        renderEmployeeList(document.getElementById("empSearch").value);
+      });
+      document.getElementById("deselectAllEmp").addEventListener("click", () => {
+        selectedEmployeeIds.clear();
+        renderEmployeeList(document.getElementById("empSearch").value);
+      });
+
+      // ====================================================================
+      // TAMBAH JADWAL LIBUR — Dates
+      // ====================================================================
+      function updateDateUI() {
+        const container = document.getElementById("selectedDates");
+        const count = document.getElementById("dateCount");
+        if (selectedDates.length === 0) {
+          container.innerHTML = '<span class="text-xs text-slate-400 italic">Belum ada tanggal dipilih</span>';
+          count.textContent = "0 tanggal"; updateAddSummary(); return;
+        }
+        container.innerHTML = "";
+        selectedDates.sort().forEach((d) => {
+          const [y, m, day] = d.split("-");
+          const chip = document.createElement("span");
+          chip.className = "date-chip";
+          chip.innerHTML = `${day} ${MONTHS_SHORT[parseInt(m)-1]} ${y}`;
+          const btn = document.createElement("button");
+          btn.textContent = "×";
+          btn.addEventListener("click", () => {
+            selectedDates = selectedDates.filter((x) => x !== d);
+            updateDateUI();
+          });
+          chip.appendChild(btn); container.appendChild(chip);
+        });
+        count.textContent = `${selectedDates.length} tanggal`;
+        updateAddSummary();
+      }
+
+      document.getElementById("addDateBtn").addEventListener("click", () => {
+        const inp = document.getElementById("dateInput");
+        if (!inp.value) return;
+        if (selectedDates.includes(inp.value)) { showToast("Tanggal sudah ditambahkan", "error"); return; }
+        selectedDates.push(inp.value);
+        updateDateUI();
+        inp.value = "";
+      });
+      document.getElementById("dateInput").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") document.getElementById("addDateBtn").click();
+      });
+      document.getElementById("clearDatesBtn").addEventListener("click", () => { selectedDates = []; updateDateUI(); });
+
+      function getSelectedStatus() {
+        const checked = document.querySelector('input[name="statusRadio"]:checked');
+        return checked ? checked.value : "L";
+      }
+
+      // ====================================================================
+      // TAMBAH JADWAL LIBUR — Notes & Status
+      // ====================================================================
+      document.getElementById("notesInput").addEventListener("input", updateAddSummary);
+      document.querySelectorAll('input[name="statusRadio"]').forEach((r) =>
+        r.addEventListener("change", updateAddSummary)
+      );
+
+      // ====================================================================
+      // TAMBAH JADWAL LIBUR — Summary
+      // ====================================================================
+      function updateAddSummary() {
+        const empCount = document.getElementById("empCount");
+        const container = document.getElementById("summaryContainer");
+        const countEl = document.getElementById("summaryCount");
+        const submitBtn = document.getElementById("submitBtn");
+        const infoEl = document.getElementById("submitInfo");
+
+        const empSel = allEmployees.filter((e) => selectedEmployeeIds.has(e.id));
+        empCount.textContent = `${empSel.length} terpilih`;
+
+        if (empSel.length === 0 || selectedDates.length === 0) {
+          container.innerHTML = '<p class="text-sm text-slate-400 italic">Pilih karyawan dan tanggal untuk melihat ringkasan.</p>';
+          countEl.textContent = "0 data"; submitBtn.disabled = true; infoEl.textContent = "";
+          return;
+        }
+
+        const total = empSel.length * selectedDates.length;
+        const st = getSelectedStatus();
+        let html = `<table class="summary-table"><thead><tr>
+          <th>#</th><th>Karyawan</th><th>Divisi</th><th>Tanggal</th><th>Status</th>
+        </tr></thead><tbody>`;
+        let c = 0;
+        empSel.forEach((e) => {
+          selectedDates.sort().forEach((d) => {
+            c++;
+            const [y, m, day] = d.split("-");
+            html += `<tr>
+              <td class="text-slate-400 w-10">${c}</td>
+              <td class="font-medium">${e.name}</td>
+              <td class="text-slate-500">${e.division || "-"}</td>
+              <td>${day} ${MONTHS_SHORT[parseInt(m)-1]} ${y}</td>
+              <td>${STATUS_LABEL[st] || st}</td>
+            </tr>`;
+          });
+        });
+        html += "</tbody></table>";
+        container.innerHTML = html;
+        countEl.textContent = `${total} data`;
+        submitBtn.disabled = false;
+        const notes = document.getElementById("notesInput").value.trim();
+        infoEl.textContent = `${total} data akan disimpan (${STATUS_LABEL[st]})${notes ? " dengan keterangan" : ""}.`;
+      }
+
+      // ====================================================================
+      // TAMBAH JADWAL LIBUR — Submit
+      // ====================================================================
+      document.getElementById("submitBtn").addEventListener("click", async () => {
+        const empSel = allEmployees.filter((e) => selectedEmployeeIds.has(e.id));
+        const notes = document.getElementById("notesInput").value.trim();
+        const st = getSelectedStatus();
+        if (empSel.length === 0 || selectedDates.length === 0) {
+          showToast("Pilih minimal 1 karyawan dan 1 tanggal", "error"); return;
+        }
+        const btn = document.getElementById("submitBtn");
+        btn.disabled = true; btn.textContent = "Menyimpan...";
+        try {
+          const { data: existing } = await supabaseClient
+            .from("attendance")
+            .select("employee_id, attendance_date")
+            .in("employee_id", empSel.map((e) => e.id))
+            .in("attendance_date", selectedDates);
+          const existSet = new Set();
+          (existing || []).forEach((r) => existSet.add(`${r.employee_id}|${r.attendance_date}`));
+          const toInsert = []; let skipped = 0;
+          empSel.forEach((e) => {
+            selectedDates.forEach((d) => {
+              const k = `${e.id}|${d}`;
+              if (existSet.has(k)) { skipped++; }
+              else { toInsert.push({ employee_id: e.id, attendance_date: d, status: st, information: notes || null }); }
+            });
+          });
+          if (toInsert.length === 0) {
+            showToast("Semua data sudah ada. Tidak ada data baru.", "error");
+            btn.disabled = false; btn.textContent = "Simpan Semua"; return;
+          }
+          for (let i = 0; i < toInsert.length; i += 50) {
+            const { error } = await supabaseClient.from("attendance").insert(toInsert.slice(i, i + 50));
+            if (error) throw error;
+          }
+          let msg = `${toInsert.length} data berhasil disimpan.`;
+          if (skipped > 0) msg += ` ${skipped} data dilewati (sudah ada).`;
+          showToast(msg, "success");
+          document.getElementById("notesInput").value = "";
+          selectedDates = []; updateDateUI();
+        } catch (err) { showToast("Gagal menyimpan: " + err.message, "error"); }
+        finally { btn.disabled = false; btn.textContent = "Simpan Semua"; }
+      });
+
+      // ====================================================================
+      // TAMBAH JADWAL LIBUR — Reset
+      // ====================================================================
+      document.getElementById("resetBtn").addEventListener("click", () => {
+        if (!selectedEmployeeIds.size && !selectedDates.length) return;
+        if (confirm("Reset semua data yang sudah dipilih?")) {
+          selectedEmployeeIds.clear(); selectedDates = [];
+          document.getElementById("notesInput").value = "";
+          document.getElementById("empSearch").value = "";
+          renderEmployeeList(); updateDateUI();
+        }
+      });
+
+      // ====================================================================
+      // TUKAR LIBUR — Shared helpers
+      // ====================================================================
+      function populateSwapSelects() {
+        const opts = allEmployees.map((e) => `<option value="${e.id}">${e.name}</option>`).join("");
+        ["swapEmpA", "swapEmpB", "moveEmp"].forEach((id) => {
+          const sel = document.getElementById(id);
+          sel.innerHTML = `<option value="">-- Pilih Karyawan --</option>${opts}`;
+        });
+      }
+
+      async function fetchLeaveDates(employeeId) {
+        if (!employeeId) return [];
+        const { data } = await supabaseClient
+          .from("attendance")
+          .select("attendance_date, status")
+          .eq("employee_id", employeeId)
+          .order("attendance_date", { ascending: true });
+        return data || [];
+      }
+
+      function formatDate(str) {
+        const [y, m, d] = str.split("-");
+        return `${d} ${MONTHS_SHORT[parseInt(m)-1]} ${y}`;
+      }
+
+      function populateDateSelect(selectId, dates, disabledMsg) {
+        const sel = document.getElementById(selectId);
+        if (!dates || dates.length === 0) {
+          sel.innerHTML = `<option value="">${disabledMsg || "-- Tidak ada data --"}</option>`;
+          sel.disabled = true;
+          return;
+        }
+        sel.innerHTML = dates.map((r) =>
+          `<option value="${r.attendance_date}">${formatDate(r.attendance_date)} (${STATUS_LABEL[r.status] || r.status})</option>`
+        ).join("");
+        sel.disabled = false;
+      }
+
+      // ====================================================================
+      // TUKAR LIBUR — Sub-flow 1: Swap with another employee
+      // ====================================================================
+      document.getElementById("swapEmpA").addEventListener("change", async function () {
+        const id = this.value;
+        if (!id) { empALeaveDates = []; document.getElementById("swapDateA").innerHTML = '<option value="">-- Pilih Karyawan dulu --</option>';
+          document.getElementById("swapDateA").disabled = true; updateSwapSummary(); return; }
+        empALeaveDates = await fetchLeaveDates(id);
+        populateDateSelect("swapDateA", empALeaveDates, "-- Tidak ada jadwal libur --");
+        updateSwapSummary();
+      });
+
+      document.getElementById("swapEmpB").addEventListener("change", async function () {
+        const id = this.value;
+        if (!id) { empBLeaveDates = []; document.getElementById("swapDateB").innerHTML = '<option value="">-- Pilih Karyawan dulu --</option>';
+          document.getElementById("swapDateB").disabled = true; updateSwapSummary(); return; }
+        empBLeaveDates = await fetchLeaveDates(id);
+        populateDateSelect("swapDateB", empBLeaveDates, "-- Tidak ada jadwal libur --");
+        updateSwapSummary();
+      });
+
+      document.getElementById("swapDateA").addEventListener("change", updateSwapSummary);
+      document.getElementById("swapDateB").addEventListener("change", updateSwapSummary);
+
+      function updateSwapSummary() {
+        const container = document.getElementById("swapSummary");
+        const btn = document.getElementById("swapExecuteBtn");
+        const empAId = document.getElementById("swapEmpA").value;
+        const empBId = document.getElementById("swapEmpB").value;
+        const dateA = document.getElementById("swapDateA").value;
+        const dateB = document.getElementById("swapDateB").value;
+
+        if (!empAId || !empBId || !dateA || !dateB) {
+          container.innerHTML = '<p class="text-sm text-slate-400 italic">Pilih karyawan dan tanggal untuk melihat ringkasan.</p>';
+          btn.disabled = true; return;
+        }
+
+        const empA = allEmployees.find((e) => e.id === empAId);
+        const empB = allEmployees.find((e) => e.id === empBId);
+
+        if (empAId === empBId) {
+          container.innerHTML = '<p class="text-sm text-red-500">Karyawan pertama dan kedua harus berbeda.</p>';
+          btn.disabled = true; return;
+        }
+
+        const conflictA = empBLeaveDates.some((r) => r.attendance_date === dateA);
+        const conflictB = empALeaveDates.some((r) => r.attendance_date === dateB);
+
+        let warn = "";
+        if (conflictA) warn += `<p class="text-xs text-amber-600">Perhatian: ${empA.name} sudah memiliki jadwal di tanggal ${formatDate(dateA)}.</p>`;
+        if (conflictB) warn += `<p class="text-xs text-amber-600">Perhatian: ${empB.name} sudah memiliki jadwal di tanggal ${formatDate(dateB)}.</p>`;
+
+        container.innerHTML = `
+          <table class="summary-table">
+            <thead><tr><th></th><th>Karyawan</th><th>Tanggal Lama</th><th>Tanggal Baru</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="font-medium">A</td>
+                <td>${empA.name}</td>
+                <td>${formatDate(dateA)}</td>
+                <td class="font-medium text-indigo-600">${formatDate(dateB)}</td>
+              </tr>
+              <tr>
+                <td class="font-medium">B</td>
+                <td>${empB.name}</td>
+                <td>${formatDate(dateB)}</td>
+                <td class="font-medium text-indigo-600">${formatDate(dateA)}</td>
+              </tr>
+            </tbody>
+          </table>
+          ${warn}
+          <p class="text-sm text-slate-600 mt-2">Setelah ditukar: <strong>${empA.name}</strong> libur ${formatDate(dateB)}, <strong>${empB.name}</strong> libur ${formatDate(dateA)}.</p>`;
+        btn.disabled = !!(conflictA || conflictB);
+      }
+
+      document.getElementById("swapExecuteBtn").addEventListener("click", async () => {
+        const empAId = document.getElementById("swapEmpA").value;
+        const empBId = document.getElementById("swapEmpB").value;
+        const dateA = document.getElementById("swapDateA").value;
+        const dateB = document.getElementById("swapDateB").value;
+
+        if (!empAId || !empBId || !dateA || !dateB) { showToast("Lengkapi semua data terlebih dahulu", "error"); return; }
+
+        const empA = allEmployees.find((e) => e.id === empAId);
+        const empB = allEmployees.find((e) => e.id === empBId);
+
+        const recordA = empALeaveDates.find((r) => r.attendance_date === dateA);
+        const recordB = empBLeaveDates.find((r) => r.attendance_date === dateB);
+        const statusA = recordA ? recordA.status : "L";
+        const statusB = recordB ? recordB.status : "L";
+        const infoA = recordA ? recordA.information : null;
+        const infoB = recordB ? recordB.information : null;
+
+        const btn = document.getElementById("swapExecuteBtn");
+        btn.disabled = true; btn.textContent = "Memproses...";
+
+        try {
+          // Delete old records
+          await supabaseClient.from("attendance")
+            .delete()
+            .eq("employee_id", empAId)
+            .eq("attendance_date", dateA);
+          await supabaseClient.from("attendance")
+            .delete()
+            .eq("employee_id", empBId)
+            .eq("attendance_date", dateB);
+
+          // Insert swapped records
+          await supabaseClient.from("attendance").insert([
+            { employee_id: empAId, attendance_date: dateB, status: statusA, information: infoA },
+            { employee_id: empBId, attendance_date: dateA, status: statusB, information: infoB },
+          ]);
+
+          showToast(`Berhasil menukar jadwal ${empA.name} ↔ ${empB.name}`, "success");
+
+          // Reset
+          document.getElementById("swapEmpA").value = "";
+          document.getElementById("swapEmpB").value = "";
+          document.getElementById("swapDateA").innerHTML = '<option value="">-- Pilih Karyawan dulu --</option>';
+          document.getElementById("swapDateA").disabled = true;
+          document.getElementById("swapDateB").innerHTML = '<option value="">-- Pilih Karyawan dulu --</option>';
+          document.getElementById("swapDateB").disabled = true;
+          empALeaveDates = []; empBLeaveDates = [];
+          updateSwapSummary();
+        } catch (err) { showToast("Gagal menukar: " + err.message, "error"); }
+        finally { btn.disabled = false; btn.textContent = "Tukarkan"; }
+      });
+
+      document.getElementById("swapResetBtn").addEventListener("click", () => {
+        document.getElementById("swapEmpA").value = "";
+        document.getElementById("swapEmpB").value = "";
+        document.getElementById("swapDateA").innerHTML = '<option value="">-- Pilih Karyawan dulu --</option>';
+        document.getElementById("swapDateA").disabled = true;
+        document.getElementById("swapDateB").innerHTML = '<option value="">-- Pilih Karyawan dulu --</option>';
+        document.getElementById("swapDateB").disabled = true;
+        empALeaveDates = []; empBLeaveDates = [];
+        updateSwapSummary();
+      });
+
+      // ====================================================================
+      // TUKAR LIBUR — Sub-flow 2: Move to another date
+      // ====================================================================
+      document.getElementById("moveEmp").addEventListener("change", async function () {
+        const id = this.value;
+        if (!id) { empMoveLeaveDates = []; document.getElementById("moveOldDate").innerHTML = '<option value="">-- Pilih Karyawan dulu --</option>';
+          document.getElementById("moveOldDate").disabled = true; updateMoveSummary(); return; }
+        empMoveLeaveDates = await fetchLeaveDates(id);
+        populateDateSelect("moveOldDate", empMoveLeaveDates, "-- Tidak ada jadwal libur --");
+        updateMoveSummary();
+      });
+
+      document.getElementById("moveOldDate").addEventListener("change", updateMoveSummary);
+      document.getElementById("moveNewDate").addEventListener("change", updateMoveSummary);
+
+      function updateMoveSummary() {
+        const container = document.getElementById("moveSummary");
+        const btn = document.getElementById("moveExecuteBtn");
+        const empId = document.getElementById("moveEmp").value;
+        const oldDate = document.getElementById("moveOldDate").value;
+        const newDate = document.getElementById("moveNewDate").value;
+
+        if (!empId || !oldDate || !newDate) {
+          container.innerHTML = '<p class="text-sm text-slate-400 italic">Pilih karyawan, tanggal lama, dan tanggal baru.</p>';
+          btn.disabled = true; return;
+        }
+
+        if (oldDate === newDate) {
+          container.innerHTML = '<p class="text-sm text-red-500">Tanggal baru harus berbeda dari tanggal lama.</p>';
+          btn.disabled = true; return;
+        }
+
+        const emp = allEmployees.find((e) => e.id === empId);
+        const conflict = empMoveLeaveDates.some((r) => r.attendance_date === newDate);
+
+        if (conflict) {
+          container.innerHTML = `<p class="text-sm text-red-500">${emp.name} sudah memiliki jadwal di tanggal ${formatDate(newDate)}. Pilih tanggal lain.</p>`;
+          btn.disabled = true; return;
+        }
+
+        container.innerHTML = `
+          <table class="summary-table">
+            <thead><tr><th>Karyawan</th><th>Tanggal Lama</th><th>Tanggal Baru</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="font-medium">${emp.name}</td>
+                <td>${formatDate(oldDate)}</td>
+                <td class="font-medium text-indigo-600">${formatDate(newDate)}</td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="text-sm text-slate-600 mt-2">Jadwal libur <strong>${emp.name}</strong> akan dipindahkan dari ${formatDate(oldDate)} ke ${formatDate(newDate)}.</p>`;
+        btn.disabled = false;
+      }
+
+      document.getElementById("moveExecuteBtn").addEventListener("click", async () => {
+        const empId = document.getElementById("moveEmp").value;
+        const oldDate = document.getElementById("moveOldDate").value;
+        const newDate = document.getElementById("moveNewDate").value;
+
+        if (!empId || !oldDate || !newDate) { showToast("Lengkapi semua data terlebih dahulu", "error"); return; }
+
+        const record = empMoveLeaveDates.find((r) => r.attendance_date === oldDate);
+        const status = record ? record.status : "L";
+        const info = record ? record.information : null;
+        const emp = allEmployees.find((e) => e.id === empId);
+
+        const btn = document.getElementById("moveExecuteBtn");
+        btn.disabled = true; btn.textContent = "Memproses...";
+
+        try {
+          await supabaseClient.from("attendance")
+            .delete()
+            .eq("employee_id", empId)
+            .eq("attendance_date", oldDate);
+
+          await supabaseClient.from("attendance").insert([
+            { employee_id: empId, attendance_date: newDate, status, information: info },
+          ]);
+
+          showToast(`Berhasil memindahkan jadwal ${emp.name} ke ${formatDate(newDate)}`, "success");
+
+          document.getElementById("moveEmp").value = "";
+          document.getElementById("moveOldDate").innerHTML = '<option value="">-- Pilih Karyawan dulu --</option>';
+          document.getElementById("moveOldDate").disabled = true;
+          document.getElementById("moveNewDate").value = "";
+          empMoveLeaveDates = [];
+          updateMoveSummary();
+        } catch (err) { showToast("Gagal memindahkan: " + err.message, "error"); }
+        finally { btn.disabled = false; btn.textContent = "Pindahkan"; }
+      });
+
+      document.getElementById("moveResetBtn").addEventListener("click", () => {
+        document.getElementById("moveEmp").value = "";
+        document.getElementById("moveOldDate").innerHTML = '<option value="">-- Pilih Karyawan dulu --</option>';
+        document.getElementById("moveOldDate").disabled = true;
+        document.getElementById("moveNewDate").value = "";
+        empMoveLeaveDates = [];
+        updateMoveSummary();
+      });
+
+      // ====================================================================
+      // TUKAR LIBUR — Mode switching
+      // ====================================================================
+      document.getElementById("swapModeContainer").addEventListener("click", (e) => {
+        const btn = e.target.closest(".mode-btn");
+        if (!btn) return;
+        document.querySelectorAll("#swapModeContainer .mode-btn").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        document.querySelectorAll(".swap-mode").forEach((el) => el.classList.add("hidden"));
+        document.getElementById("swapMode" + (btn.dataset.mode === "swap-employee" ? "Employee" : "Move")).classList.remove("hidden");
+      });
+
+      // ====================================================================
+      // LIST PERIZINAN
+      // ====================================================================
+      function initPermitMonthPicker() {
+        const now = new Date();
+        const picker = document.getElementById("permitMonth");
+        picker.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+      }
+
+      document.getElementById("refreshPermitBtn").addEventListener("click", loadPermitData);
+
+      async function loadPermitData() {
+        const container = document.getElementById("permitContainer");
+        const val = document.getElementById("permitMonth").value;
+        if (!val) { container.innerHTML = '<p class="text-sm text-slate-400 italic">Pilih bulan.</p>'; return; }
+        const [yearStr, monthStr] = val.split("-");
+        const y = parseInt(yearStr), m = parseInt(monthStr);
+
+        const next = new Date(y, m, 1); // first day of next month
+        const nextY = next.getFullYear();
+        const nextM = String(next.getMonth() + 1).padStart(2, "0");
+
+        container.innerHTML = '<p class="text-sm text-slate-400 italic">Memuat data...</p>';
+
+        try {
+          const { data: attendance } = await supabaseClient
+            .from("attendance")
+            .select("employee_id, attendance_date, status, information, created_at")
+            .gte("attendance_date", `${yearStr}-${monthStr}-01`)
+            .lt("attendance_date", `${nextY}-${nextM}-01`)
+            .in("status", ["I", "S"])
+            .order("attendance_date", { ascending: true });
+
+          if (!attendance || attendance.length === 0) {
+            container.innerHTML = '<p class="text-sm text-slate-400 italic">Tidak ada data perizinan untuk bulan ini.</p>';
+            return;
+          }
+
+          let html = `<table class="summary-table"><thead><tr>
+            <th>#</th><th>Karyawan</th><th>Tanggal</th><th>Status</th><th>Keterangan</th>
+          </tr></thead><tbody>`;
+
+          attendance.forEach((r, i) => {
+            const emp = allEmployees.find((e) => e.id === r.employee_id);
+            const label = r.status === "I" ? "Izin" : "Sakit";
+            const info = r.information || "-";
+            html += `<tr>
+              <td class="text-slate-400 w-10">${i + 1}</td>
+              <td class="font-medium">${emp ? emp.name : "Unknown"}</td>
+              <td>${formatDate(r.attendance_date)}</td>
+              <td><span class="inline-block px-2 py-0.5 rounded text-xs font-semibold text-white ${
+                r.status === "I" ? "bg-cyan-600" : "bg-pink-500"
+              }">${label}</span></td>
+              <td class="text-slate-600 max-w-xs">${info}</td>
+            </tr>`;
+          });
+
+          html += "</tbody></table>";
+          html += `<p class="text-xs text-slate-400 mt-2">Total ${attendance.length} data perizinan.</p>`;
+          container.innerHTML = html;
+        } catch (err) {
+          container.innerHTML = '<p class="text-sm text-red-500">Gagal memuat data.</p>';
+          showToast("Gagal memuat data perizinan", "error");
+        }
+      }
+
+      // ====================================================================
+      // TOAST
+      // ====================================================================
+      function showToast(message, type = "success") {
+        const existing = document.querySelector(".toast");
+        if (existing) existing.remove();
+        const toast = document.createElement("div");
+        toast.className = `toast toast-${type}`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => {
+          toast.style.opacity = "0";
+          toast.style.transition = "opacity 0.3s";
+          setTimeout(() => toast.remove(), 300);
+        }, 3500);
+      }
+    </script>
+  </body>
+</html>

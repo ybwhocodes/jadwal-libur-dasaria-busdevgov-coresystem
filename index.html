@@ -229,6 +229,50 @@
       .scrollwrap::-webkit-scrollbar-thumb:hover {
         background: linear-gradient(135deg, #5568d3 0%, #6a4193 100%);
       }
+
+      .tab-btn {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        border-radius: 0.75rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        border: 2px solid transparent;
+      }
+      .tab-btn:hover { transform: translateY(-1px); }
+      .tab-btn.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+      }
+      .tab-btn:not(.active) {
+        background: #f1f5f9;
+        color: #64748b;
+        border-color: #e2e8f0;
+      }
+      .tab-btn:not(.active):hover {
+        background: #e2e8f0;
+        color: #334155;
+      }
+
+      .btn-export {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        border-radius: 0.75rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        border: 2px solid #22c55e;
+        background: white;
+        color: #22c55e;
+        margin-left: auto;
+      }
+      .btn-export:hover {
+        background: #22c55e;
+        color: white;
+        box-shadow: 0 4px 12px rgba(34,197,94,0.4);
+        transform: translateY(-1px);
+      }
     </style>
   </head>
 
@@ -336,6 +380,15 @@
         </div>
       </div>
 
+      <!-- Tabs -->
+      <div class="card mb-6 fade-in">
+        <div class="flex flex-wrap items-center gap-3" id="tabContainer">
+          <button class="tab-btn active" data-directorat="IT">Informatics Technology</button>
+          <button class="tab-btn" data-directorat="BD">Business Development</button>
+          <button class="btn-export" id="exportBtn">Export CSV</button>
+        </div>
+      </div>
+
       <!-- Table -->
       <div class="scrollwrap fade-in">
         <table id="tbl" class="border-collapse text-sm w-full"></table>
@@ -365,6 +418,9 @@
         ));
 
       let PEOPLE = [];
+      let allEmployees = [];
+      let allAttendance = [];
+      let activeDirectorat = "IT";
       let ABSENSI_PER_KARYAWAN = {};
 
       const DOW_ID = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
@@ -420,11 +476,12 @@
           .select("*")
           .order("number", { ascending: true });
 
-        PEOPLE = (employees || []).map((e) => ({
+        allEmployees = (employees || []).map((e) => ({
           id: e.id,
           name: e.name,
           ba: e.division,
           rowClass: e.row_class || "",
+          directorat: e.directorat || "",
         }));
 
         const { data: attendance } = await supabaseClient
@@ -433,8 +490,18 @@
           .gte("attendance_date", start)
           .lte("attendance_date", end);
 
+        allAttendance = attendance || [];
+
+        applyFilterAndRender(year, month);
+      }
+
+      function applyFilterAndRender(year, month) {
+        PEOPLE = allEmployees.filter(
+          (e) => e.directorat === activeDirectorat || e.directorat === "Lead",
+        );
+
         ABSENSI_PER_KARYAWAN = {};
-        (attendance || []).forEach((a) => {
+        allAttendance.forEach((a) => {
           const emp = PEOPLE.find((p) => p.id === a.employee_id);
           if (!emp) return;
           if (!ABSENSI_PER_KARYAWAN[emp.name])
@@ -443,6 +510,47 @@
         });
 
         renderTable(year, month);
+      }
+
+      function exportCSV() {
+        const year = parseInt(document.getElementById("yearInp").value);
+        const month = parseInt(document.getElementById("monthSel").value);
+        const dim = daysInMonth(year, month);
+        const tabLabel = activeDirectorat === "IT" ? "Informatics Technology" : "Business Development";
+
+        const header = ["Nama", "Divisi"];
+        for (let d = 1; d <= dim; d++) header.push(String(d));
+        header.push("L", "S", "A", "I");
+
+        const rows = PEOPLE.map((p) => {
+          let countL = 0, countS = 0, countA = 0, countI = 0;
+          const days = [];
+          for (let d = 1; d <= dim; d++) {
+            const status = getStatus(p.name, ymd(year, month, d));
+            days.push(status || "");
+            if (status === "L") countL++;
+            else if (status === "S") countS++;
+            else if (status === "A") countA++;
+            else if (status === "I") countI++;
+          }
+          return [p.name, p.ba, ...days, countL, countS, countA, countI];
+        });
+
+        const csvContent = [header, ...rows]
+          .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","))
+          .join("\n");
+
+        const bom = "\uFEFF";
+        const blob = new Blob([bom + csvContent], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `absensi_${tabLabel.replace(/\s+/g, "_")}_${monthNameID(month)}_${year}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
       }
 
       function renderTable(year, month) {
@@ -612,6 +720,21 @@
           monthSel.value = String(m);
           loadData(y, m);
         });
+
+        document.getElementById("tabContainer").addEventListener("click", (e) => {
+          const btn = e.target.closest(".tab-btn");
+          if (!btn) return;
+
+          document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+
+          activeDirectorat = btn.dataset.directorat;
+          const y = parseInt(yearInp.value);
+          const m = parseInt(monthSel.value);
+          applyFilterAndRender(y, m);
+        });
+
+        document.getElementById("exportBtn").addEventListener("click", exportCSV);
       })();
     </script>
   </body>

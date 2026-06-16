@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Direktorat - Members</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      * { font-family: "Inter", sans-serif; }
+
+      .card {
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        padding: 1.5rem;
+      }
+
+      .tab-btn {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        border-radius: 0.75rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        border: 2px solid transparent;
+      }
+      .tab-btn:hover { transform: translateY(-1px); }
+      .tab-btn.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+      }
+      .tab-btn:not(.active) {
+        background: #f1f5f9;
+        color: #64748b;
+        border-color: #e2e8f0;
+      }
+      .tab-btn:not(.active):hover {
+        background: #e2e8f0;
+        color: #334155;
+      }
+
+      .row-green { background: #f0fdf4; }
+      .row-green:hover { background: #dcfce7; }
+      .row-pink { background: #fdf2f8; }
+      .row-pink:hover { background: #fce7f3; }
+      .row-blue { background: #eff6ff; }
+      .row-blue:hover { background: #dbeafe; }
+      .row-yellow { background: #fefce8; }
+      .row-yellow:hover { background: #fef9c3; }
+
+      .table-wrap {
+        overflow: auto;
+        border: 2px solid #e5e7eb;
+        border-radius: 1rem;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      }
+
+      .table-wrap::-webkit-scrollbar {
+        width: 8px; height: 8px;
+      }
+      .table-wrap::-webkit-scrollbar-track {
+        background: #f1f5f9; border-radius: 8px;
+      }
+      .table-wrap::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 8px;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .fade-in { animation: fadeIn 0.4s ease-out; }
+    </style>
+  </head>
+
+  <body class="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen">
+    <div class="max-w-4xl mx-auto p-6">
+      <div class="card mb-6 fade-in">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h1 class="text-3xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+              Direktorat Members
+            </h1>
+            <p id="subtitle" class="text-sm text-slate-600 mt-1">Memuat data...</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-6 fade-in">
+        <div class="flex flex-wrap items-center gap-3" id="tabContainer">
+          <button class="tab-btn active" data-directorat="IT">Informatics Technology</button>
+          <button class="tab-btn" data-directorat="BD">Business Development</button>
+        </div>
+      </div>
+
+      <div class="table-wrap fade-in">
+        <table class="border-collapse text-sm w-full">
+          <thead>
+            <tr class="bg-gradient-to-r from-indigo-600 to-purple-700 text-white">
+              <th class="py-3 px-4 text-left font-semibold w-16">#</th>
+              <th class="py-3 px-4 text-left font-semibold">Nama</th>
+              <th class="py-3 px-4 text-left font-semibold">Divisi</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="mt-4 text-center text-xs text-slate-400">
+        Data dimuat dari Supabase &mdash; Diurutkan berdasarkan nomor urut
+      </div>
+    </div>
+
+    <script>
+      const SUPABASE_URL = "https://rawbnpkygbvwelkmldwt.supabase.co";
+      const SUPABASE_KEY = "sb_publishable_J69nxLQqbfWKRwv2Iv4wwQ_UvvVDfRf";
+      const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+      let allEmployees = [];
+      let activeDirectorat = "IT";
+
+      async function loadEmployees() {
+        const { data, error } = await supabaseClient
+          .from("employees")
+          .select("id, name, division, row_class, directorat, number")
+          .order("number", { ascending: true });
+
+        if (error) {
+          document.getElementById("subtitle").textContent = "Gagal memuat data.";
+          console.error(error);
+          return;
+        }
+
+        allEmployees = (data || []).map(e => ({
+          id: e.id,
+          name: e.name,
+          division: e.division || "-",
+          rowClass: e.row_class || "",
+          directorat: e.directorat || "",
+          number: e.number,
+        }));
+
+        document.getElementById("subtitle").textContent =
+          `Total ${allEmployees.length} anggota`;
+
+        renderTable();
+      }
+
+      function renderTable() {
+        const tbody = document.getElementById("tableBody");
+        tbody.innerHTML = "";
+
+        const filtered = allEmployees.filter(e =>
+          e.directorat === activeDirectorat || e.directorat === "Lead"
+        );
+
+        if (filtered.length === 0) {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `<td colspan="3" class="py-8 text-center text-slate-400">Tidak ada data untuk direktorat ini.</td>`;
+          tbody.appendChild(tr);
+          return;
+        }
+
+        filtered.forEach((e, i) => {
+          const tr = document.createElement("tr");
+          tr.className = `transition-colors ${e.rowClass || ""}`;
+
+          tr.innerHTML = `
+            <td class="py-2.5 px-4 text-slate-500 font-medium">${e.number || i + 1}</td>
+            <td class="py-2.5 px-4 font-medium text-slate-800">${e.name}</td>
+            <td class="py-2.5 px-4 text-slate-600">${e.division}</td>
+          `;
+
+          tbody.appendChild(tr);
+        });
+      }
+
+      document.getElementById("tabContainer").addEventListener("click", (event) => {
+        const btn = event.target.closest(".tab-btn");
+        if (!btn) return;
+
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        activeDirectorat = btn.dataset.directorat;
+        renderTable();
+      });
+
+      loadEmployees();
+    </script>
+  </body>
+</html>
