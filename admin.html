@@ -271,6 +271,10 @@
                   <input type="radio" name="statusRadio" value="S" class="text-indigo-600" />
                   <span class="w-5 h-5 rounded text-center text-xs font-bold leading-5 text-white" style="background:linear-gradient(135deg,#ec4899,#db2777)">S</span> Sakit
                 </label>
+                <label class="flex items-center gap-1.5 text-sm cursor-pointer">
+                  <input type="radio" name="statusRadio" value="C" class="text-indigo-600" />
+                  <span class="w-5 h-5 rounded text-center text-xs font-bold leading-5 text-white" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed)">C</span> Cuti
+                </label>
               </div>
             </div>
             <div id="selectedDates" class="flex flex-wrap gap-2 min-h-[2.5rem] p-2">
@@ -285,7 +289,7 @@
 
         <div class="card mt-6 fade-in">
           <h2 class="text-lg font-semibold text-slate-800 mb-3">Keterangan (opsional)</h2>
-          <textarea id="notesInput" class="w-full resize-none" rows="2" placeholder="Misal: Libur bersama, Cuti tahunan, jadwal off, dll."></textarea>
+          <textarea id="notesInput" class="w-full resize-none" rows="2" placeholder="Misal: Libur bersama, Cuti tahunan, Izin acara keluarga, Sakit, jadwal off, dll."></textarea>
         </div>
 
         <div class="card mt-6 fade-in">
@@ -399,7 +403,7 @@
       <div id="tabPermit" class="tab-content hidden">
         <div class="card mb-6 fade-in">
           <div class="flex flex-wrap items-center justify-between gap-3">
-            <h2 class="text-lg font-semibold text-slate-800">Data Perizinan (Izin &amp; Sakit)</h2>
+            <h2 class="text-lg font-semibold text-slate-800">Data Perizinan (Izin, Sakit &amp; Cuti)</h2>
             <div class="flex items-center gap-2">
               <input id="permitMonth" type="month" class="text-sm py-1.5" />
               <button id="refreshPermitBtn" class="btn-outline rounded-lg px-3 py-1.5 text-xs font-medium">Perbarui</button>
@@ -419,7 +423,7 @@
       const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
       const MONTHS_SHORT = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
-      const STATUS_LABEL = { L: "Libur", I: "Izin", S: "Sakit" };
+      const STATUS_LABEL = { L: "Libur", I: "Izin", S: "Sakit", C: "Cuti" };
 
       // ====================================================================
       // STATE
@@ -730,7 +734,7 @@
         if (!employeeId) return [];
         const { data } = await supabaseClient
           .from("attendance")
-          .select("attendance_date, status")
+          .select("attendance_date, status, information")
           .eq("employee_id", employeeId)
           .order("attendance_date", { ascending: true });
         return data || [];
@@ -1036,11 +1040,11 @@
             .select("employee_id, attendance_date, status, information, created_at")
             .gte("attendance_date", `${yearStr}-${monthStr}-01`)
             .lt("attendance_date", `${nextY}-${nextM}-01`)
-            .in("status", ["I", "S"])
+            .in("status", ["I", "S", "C"])
             .order("attendance_date", { ascending: true });
 
           if (!attendance || attendance.length === 0) {
-            container.innerHTML = '<p class="text-sm text-slate-400 italic">Tidak ada data perizinan untuk bulan ini.</p>';
+            container.innerHTML = '<p class="text-sm text-slate-400 italic">Tidak ada data izin, sakit, atau cuti untuk bulan ini.</p>';
             return;
           }
 
@@ -1050,21 +1054,20 @@
 
           attendance.forEach((r, i) => {
             const emp = allEmployees.find((e) => e.id === r.employee_id);
-            const label = r.status === "I" ? "Izin" : "Sakit";
+            const label = r.status === "I" ? "Izin" : r.status === "C" ? "Cuti" : "Sakit";
             const info = r.information || "-";
+            const badgeColor = r.status === "I" ? "bg-cyan-600" : r.status === "C" ? "bg-purple-600" : "bg-pink-500";
             html += `<tr>
               <td class="text-slate-400 w-10">${i + 1}</td>
               <td class="font-medium">${emp ? emp.name : "Unknown"}</td>
               <td>${formatDate(r.attendance_date)}</td>
-              <td><span class="inline-block px-2 py-0.5 rounded text-xs font-semibold text-white ${
-                r.status === "I" ? "bg-cyan-600" : "bg-pink-500"
-              }">${label}</span></td>
+              <td><span class="inline-block px-2 py-0.5 rounded text-xs font-semibold text-white ${badgeColor}">${label}</span></td>
               <td class="text-slate-600 max-w-xs">${info}</td>
             </tr>`;
           });
 
           html += "</tbody></table>";
-          html += `<p class="text-xs text-slate-400 mt-2">Total ${attendance.length} data perizinan.</p>`;
+          html += `<p class="text-xs text-slate-400 mt-2">Total ${attendance.length} data.</p>`;
           container.innerHTML = html;
         } catch (err) {
           container.innerHTML = '<p class="text-sm text-red-500">Gagal memuat data.</p>';

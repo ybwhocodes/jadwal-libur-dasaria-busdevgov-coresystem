@@ -149,6 +149,14 @@
         box-shadow: 0 2px 4px rgba(251, 191, 36, 0.3);
       }
 
+      .cell-C {
+        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        color: #fff;
+        font-weight: 700;
+        border-radius: 0.25rem;
+        box-shadow: 0 2px 4px rgba(139, 92, 246, 0.3);
+      }
+
       .scrollwrap {
         overflow: auto;
         border: 2px solid #e5e7eb;
@@ -211,6 +219,21 @@
       /* Weekend highlight */
       .weekend-col {
         background-color: rgba(239, 68, 68, 0.05);
+      }
+      .weekend-col.cell-I {
+        background: #0891b2;
+      }
+      .weekend-col.cell-L {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      }
+      .weekend-col.cell-S {
+        background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+      }
+      .weekend-col.cell-A {
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      }
+      .weekend-col.cell-C {
+        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
       }
 
       /* Custom scrollbar */
@@ -373,6 +396,13 @@
             >
             <span class="text-sm text-slate-600">Izin</span>
           </div>
+          <div class="flex items-center gap-2">
+            <span
+              class="inline-block w-8 h-8 cell-C rounded text-center leading-8 text-xs"
+              >C</span
+            >
+            <span class="text-sm text-slate-600">Cuti</span>
+          </div>
           <div class="ml-auto text-xs text-slate-500">
             💡 <span class="font-medium">Tip:</span> Scroll horizontal untuk
             melihat semua tanggal
@@ -520,10 +550,10 @@
 
         const header = ["Nama", "Divisi"];
         for (let d = 1; d <= dim; d++) header.push(String(d));
-        header.push("L", "S", "A", "I");
+        header.push("L", "S", "A", "I", "C");
 
         const rows = PEOPLE.map((p) => {
-          let countL = 0, countS = 0, countA = 0, countI = 0;
+          let countL = 0, countS = 0, countA = 0, countI = 0, countC = 0;
           const days = [];
           for (let d = 1; d <= dim; d++) {
             const status = getStatus(p.name, ymd(year, month, d));
@@ -532,8 +562,9 @@
             else if (status === "S") countS++;
             else if (status === "A") countA++;
             else if (status === "I") countI++;
+            else if (status === "C") countC++;
           }
-          return [p.name, p.ba, ...days, countL, countS, countA, countI];
+          return [p.name, p.ba, ...days, countL, countS, countA, countI, countC];
         });
 
         const csvContent = [header, ...rows]
@@ -571,7 +602,7 @@
         }
 
         const thAbs = th("Rekap", "head-secondary gridline");
-        thAbs.colSpan = 4;
+        thAbs.colSpan = 5;
         tr1.appendChild(thAbs);
         tbl.appendChild(tr1);
 
@@ -588,7 +619,7 @@
           tr2.appendChild(th(DOW_ID[dt.getDay()], cls));
         }
 
-        ["L", "S", "A", "I"].forEach((s) =>
+        ["L", "S", "A", "I", "C"].forEach((s) =>
           tr2.appendChild(th(s, "head-secondary w-day gridline")),
         );
 
@@ -607,7 +638,8 @@
           let countL = 0,
             countS = 0,
             countA = 0,
-            countI = 0;
+            countI = 0,
+            countC = 0;
 
           for (let d = 1; d <= dim; d++) {
             const dateStr = ymd(year, month, d);
@@ -624,9 +656,10 @@
             }
 
             if (status === "L") countL++;
-            if (status === "S") countS++;
-            if (status === "A") countA++;
-            if (status === "I") countI++;
+            else if (status === "S") countS++;
+            else if (status === "A") countA++;
+            else if (status === "I") countI++;
+            else if (status === "C") countC++;
 
             tr.appendChild(cell);
           }
@@ -642,6 +675,9 @@
           );
           tr.appendChild(
             td(countI, "w-day gridline text-center font-semibold"),
+          );
+          tr.appendChild(
+            td(countC, "w-day gridline text-center font-semibold"),
           );
 
           tbl.appendChild(tr);
@@ -669,6 +705,7 @@
           trF.appendChild(td(totalL || "·", cls));
         }
 
+        trF.appendChild(td("", "gridline"));
         trF.appendChild(td("", "gridline"));
         trF.appendChild(td("", "gridline"));
         trF.appendChild(td("", "gridline"));
