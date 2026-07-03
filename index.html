@@ -296,6 +296,23 @@
         box-shadow: 0 4px 12px rgba(34,197,94,0.4);
         transform: translateY(-1px);
       }
+      .btn-copy {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        border-radius: 0.75rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        border: 2px solid #3b82f6;
+        background: white;
+        color: #3b82f6;
+      }
+      .btn-copy:hover {
+        background: #3b82f6;
+        color: white;
+        box-shadow: 0 4px 12px rgba(59,130,246,0.4);
+        transform: translateY(-1px);
+      }
     </style>
   </head>
 
@@ -416,6 +433,7 @@
           <button class="tab-btn active" data-directorat="IT">Informatics Technology</button>
           <button class="tab-btn" data-directorat="BD">Business Development</button>
           <button class="btn-export" id="exportBtn">Export CSV</button>
+          <button class="btn-copy" id="copyBtn">Copy to Clipboard</button>
         </div>
       </div>
 
@@ -542,7 +560,7 @@
         renderTable(year, month);
       }
 
-      function exportCSV() {
+      function buildExportData() {
         const year = parseInt(document.getElementById("yearInp").value);
         const month = parseInt(document.getElementById("monthSel").value);
         const dim = daysInMonth(year, month);
@@ -567,10 +585,24 @@
           return [p.name, p.ba, ...days, countL, countS, countA, countI, countC];
         });
 
-        const csvContent = [header, ...rows]
+        return { table: [header, ...rows], month, year, tabLabel };
+      }
+
+      function buildCSVContent() {
+        return buildExportData().table
           .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","))
           .join("\n");
+      }
 
+      function buildClipboardTable() {
+        return buildExportData().table
+          .map((row) => row.map((cell) => String(cell).replace(/\t/g, " ").replace(/\r?\n/g, " ")).join("\t"))
+          .join("\n");
+      }
+
+      function exportCSV() {
+        const { month, year, tabLabel } = buildExportData();
+        const csvContent = buildCSVContent();
         const bom = "\uFEFF";
         const blob = new Blob([bom + csvContent], { type: "text/csv;charset=utf-8;" });
         const url = URL.createObjectURL(blob);
@@ -582,6 +614,27 @@
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
+      }
+
+      async function copyCSV() {
+        const tableContent = buildClipboardTable();
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(tableContent);
+        } else {
+          const textarea = document.createElement("textarea");
+          textarea.value = tableContent;
+          textarea.style.position = "fixed";
+          textarea.style.opacity = "0";
+          document.body.appendChild(textarea);
+          textarea.focus();
+          textarea.select();
+          document.execCommand("copy");
+          document.body.removeChild(textarea);
+        }
+        const btn = document.getElementById("copyBtn");
+        const text = btn.textContent;
+        btn.textContent = "Copied!";
+        setTimeout(() => (btn.textContent = text), 1500);
       }
 
       function renderTable(year, month) {
@@ -772,6 +825,7 @@
         });
 
         document.getElementById("exportBtn").addEventListener("click", exportCSV);
+        document.getElementById("copyBtn").addEventListener("click", copyCSV);
       })();
     </script>
   </body>
