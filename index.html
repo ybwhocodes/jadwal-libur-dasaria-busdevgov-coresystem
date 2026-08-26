@@ -313,11 +313,60 @@
         box-shadow: 0 4px 12px rgba(59,130,246,0.4);
         transform: translateY(-1px);
       }
+
+      /* Top navigation menu */
+      .nav-link {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        border-radius: 0.75rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        text-decoration: none;
+        border: 2px solid #e2e8f0;
+        background: #f1f5f9;
+        color: #64748b;
+      }
+      .nav-link:hover {
+        transform: translateY(-1px);
+        background: #e2e8f0;
+        color: #334155;
+      }
+      .nav-link.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-color: transparent;
+        box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+      }
+      .nav-policy {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        border-radius: 0.75rem;
+        text-decoration: none;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        transition: all 0.3s ease;
+      }
+      .nav-policy:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(102,126,234,0.4);
+      }
     </style>
   </head>
 
   <body class="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen">
     <div class="max-w-[98%] mx-auto p-6">
+      <!-- Top Navigation -->
+      <nav class="card mb-6 fade-in">
+        <div class="flex flex-wrap items-center justify-center gap-4 text-center">
+          <div class="flex flex-wrap items-center justify-center gap-2">
+            <a href="index.html" class="nav-link active">Dashboard Absensi</a>
+            <a href="cuti-izin.html" class="nav-link">Izin & Cuti</a>
+          </div>
+        </div>
+      </nav>
+
       <!-- Header -->
       <div class="card mb-6 fade-in">
         <div class="flex flex-wrap items-center justify-between gap-4">
@@ -440,23 +489,6 @@
       <!-- Table -->
       <div class="scrollwrap fade-in">
         <table id="tbl" class="border-collapse text-sm w-full"></table>
-      </div>
-
-      <div class="card mt-6 fade-in">
-        <div class="flex flex-wrap items-center justify-between gap-4">
-          <p class="text-sm text-slate-600">
-            <span class="font-semibold text-slate-800">Catatan:</span>
-            Untuk pengajuan izin, cuti, dan cuti tahunan silahkan mengisi form berikut:
-          </p>
-          <a
-            href="https://forms.gle/6WubPXceY9yUw4pZ9"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="btn-primary text-white rounded-lg px-5 py-2.5 text-sm font-medium shadow-md"
-          >
-            Buka Form Pengajuan
-          </a>
-        </div>
       </div>
 
       <!-- Footer Info -->

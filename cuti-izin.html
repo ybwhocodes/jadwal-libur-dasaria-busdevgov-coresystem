@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infografik Pengajuan Cuti & Izin Karyawan HO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: "Inter", sans-serif; }
+        body { background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); }
+
+        .card {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-outline {
+            border: 2px solid #e2e8f0;
+            background: white;
+            color: #475569;
+            transition: all 0.3s ease;
+        }
+        .btn-outline:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            background: #f8fafc;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .accent-bar {
+            height: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 9999px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+
+        .step-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="text-slate-800 antialiased py-8 px-4 sm:px-8 min-h-screen">
+
+    <main class="max-w-4xl mx-auto fade-in space-y-6">
+
+        <!-- Breadcrumb -->
+        <nav class="flex items-center gap-2 text-sm text-slate-500">
+            <a href="index.html" class="flex items-center gap-1 text-indigo-600 hover:text-indigo-800 font-medium transition-colors">
+                <span>🏠</span> Beranda
+            </a>
+            <span class="text-slate-300">/</span>
+            <span class="text-slate-600 font-medium">Panduan Cuti & Izin</span>
+        </nav>
+
+        <!-- Header Section -->
+        <div class="card overflow-hidden">
+            <div class="flex items-center gap-3 mb-3">
+                <span class="text-3xl">📄</span>
+                <div>
+                    <p class="text-xs font-semibold tracking-wider uppercase text-indigo-500 mb-1">Dasaria Group - Head Office</p>
+                    <h1 class="text-2xl md:text-3xl font-extrabold gradient-text leading-tight">Panduan Pengajuan Cuti & Izin Karyawan</h1>
+                </div>
+            </div>
+            <div class="accent-bar mb-4"></div>
+            <p class="text-slate-500 text-sm">
+                Ringkasan prosedur dan tata cara resmi sesuai Memo Internal No: 027.01/Memo/HC/KA.II/VIII/2026
+            </p>
+        </div>
+
+        <!-- Kategori Ketidakhadiran -->
+        <div class="card">
+            <div class="text-center mb-8">
+                <h2 class="text-xl font-bold text-slate-800 inline-block relative">
+                    Kategori Ketidakhadiran
+                    <span class="accent-bar absolute bottom-0 left-0 w-full -mb-2"></span>
+                </h2>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Cuti Card -->
+                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 bg-indigo-100 text-indigo-600 w-16 h-16 flex items-center justify-center rounded-bl-3xl text-2xl">
+                        ✈️
+                    </div>
+                    <h3 class="text-xl font-bold text-indigo-600 mb-4">Cuti</h3>
+                    <ul class="space-y-3 text-sm text-slate-600">
+                        <li class="flex items-start">
+                            <span class="text-green-500 mt-1 mr-2">✅</span>
+                            <div>
+                                <span class="font-semibold text-slate-800">Cuti Tahunan (12 Hari)</span>
+                                <p class="text-xs mt-0.5">Syarat: Masa bakti lebih dari 1 tahun / 12 bulan berturut-turut.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-green-500 mt-1 mr-2">✅</span>
+                            <div>
+                                <span class="font-semibold text-slate-800">Cuti Khusus</span>
+                                <p class="text-xs mt-0.5">Diberikan untuk peristiwa tertentu dengan durasi bervariasi.</p>
+                                <ul class="list-disc ml-4 mt-1 text-xs space-y-1 text-slate-500">
+                                    <li>Sakit (Maks. 1 Minggu)</li>
+                                    <li>Melahirkan/Keguguran (3 Bulan)</li>
+                                    <li>Menikah (4 Hari)</li>
+                                    <li>Keluarga Meninggal (1-2 Hari)</li>
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Izin Card -->
+                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 bg-amber-100 text-amber-600 w-16 h-16 flex items-center justify-center rounded-bl-3xl text-2xl">
+                        ⏰
+                    </div>
+                    <h3 class="text-xl font-bold text-amber-600 mb-4">Izin</h3>
+                    <p class="text-sm text-slate-600 mb-3">Persetujuan tidak masuk untuk alasan yang dapat dipertanggungjawabkan & bukan termasuk Cuti.</p>
+                    <ul class="space-y-2 text-sm text-slate-600">
+                        <li class="flex items-center"><span class="text-green-500 mr-2">✅</span><span class="text-slate-700">Pendidikan/Pengasuhan</span></li>
+                        <li class="flex items-center"><span class="text-green-500 mr-2">✅</span><span class="text-slate-700">Keluarga 1 rumah sakit (1 Hari)</span></li>
+                        <li class="flex items-center"><span class="text-green-500 mr-2">✅</span><span class="text-slate-700">Urus Dokumen Negara (1 Hari)</span></li>
+                        <li class="flex items-center"><span class="text-green-500 mr-2">✅</span><span class="text-slate-700">Force Majeure/Musibah (1 Hari)</span></li>
+                        <li class="flex items-center"><span class="text-green-500 mr-2">✅</span><span class="text-slate-700">Izin Dinas Luar Kantor</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5 Langkah -->
+        <div class="card">
+            <div class="text-center mb-10">
+                <h2 class="text-xl font-bold text-slate-800 inline-block relative">
+                    5 Langkah Mudah Pengajuan
+                    <span class="accent-bar absolute bottom-0 left-0 w-full -mb-2"></span>
+                </h2>
+                <p class="text-slate-500 mt-4 text-sm max-w-lg mx-auto">Ikuti urutan di bawah ini untuk memastikan pengajuan Anda diproses tepat waktu oleh Tim Corporate Legal Compliance.</p>
+            </div>
+
+            <div class="relative max-w-3xl mx-auto">
+                <div class="hidden md:block absolute left-8 top-8 bottom-8 w-1 bg-indigo-100 rounded"></div>
+
+                <div class="space-y-6 relative">
+                    <!-- Step 1 -->
+                    <div class="step-card flex flex-col md:flex-row bg-white border border-slate-100 rounded-xl p-5 shadow-sm relative z-10">
+                        <div class="flex-shrink-0 mb-4 md:mb-0 md:mr-6 flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-purple-600 to-indigo-600 text-white shadow-md font-bold text-2xl">
+                            1
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-bold text-slate-800 mb-1 flex items-center"><span class="mr-2 text-sm">📝</span> Mengisi Form Pengajuan</h4>
+                            <p class="text-sm text-slate-600 mb-3">Buka link Google Form yang disediakan perusahaan. Isi secara lengkap dengan data yang benar dan sesuai kebutuhan.</p>
+                            <a href="https://docs.google.com/forms/d/e/1FAIpQLScMUYRKu9OVF4flkR_swoA33nczVR5lsp3jEl6793waMYVDoQ/viewform" target="_blank" rel="noopener noreferrer" class="btn-primary inline-flex items-center px-4 py-2 text-white text-xs font-semibold rounded-lg shadow-sm">
+                                <span class="mr-2">🔗</span> Buka Form Pengajuan
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="step-card flex flex-col md:flex-row bg-white border border-slate-100 rounded-xl p-5 shadow-sm relative z-10">
+                        <div class="flex-shrink-0 mb-4 md:mb-0 md:mr-6 flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-purple-600 to-indigo-600 text-white shadow-md font-bold text-2xl">
+                            2
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-bold text-slate-800 mb-1 flex items-center"><span class="mr-2 text-sm">📋</span> Mengisi Dokumen Persetujuan Atasan</h4>
+                            <p class="text-sm text-slate-600 mb-3">Pada Form, buka tautan Dokumen Persetujuan. Buat salinan <span class="font-semibold text-slate-800 bg-slate-100 px-1 rounded">(Make a Copy)</span>, lalu isi dokumen tersebut secara lengkap.</p>
+                            <a href="https://docs.google.com/document/d/1UvUME0YAaLInnyS76xCx8aCI7m3cJZC352qPRdjFKG8/edit?tab=t.0" target="_blank" rel="noopener noreferrer" class="btn-outline inline-flex items-center px-4 py-2 text-xs font-semibold rounded-lg shadow-sm">
+                                <span class="mr-2">📄</span> Template Persetujuan
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="step-card flex flex-col md:flex-row bg-white border border-slate-100 rounded-xl p-5 shadow-sm relative z-10">
+                        <div class="flex-shrink-0 mb-4 md:mb-0 md:mr-6 flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-purple-600 to-indigo-600 text-white shadow-md font-bold text-2xl">
+                            3
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-bold text-slate-800 mb-1 flex items-center"><span class="mr-2 text-sm">👤</span> Mengajukan Dokumen ke Atasan</h4>
+                            <p class="text-sm text-slate-600 mb-3">Ajukan ke <b>Atasan Langsung</b>. Setelah disetujui, minta persetujuan <b>Atasan Berikutnya</b>. <i>(Jika struktur tidak ada atasan berikutnya, kolom dapat dikosongkan)</i>.</p>
+                            <a href="https://docs.google.com/spreadsheets/d/1IhAB02Yy7QtN0hA5rzqxzeugkOaggQrfC3Ps6TehSu8/edit?gid=329763220#gid=329763220" target="_blank" rel="noopener noreferrer" class="btn-outline inline-flex items-center px-4 py-2 text-xs font-semibold rounded-lg shadow-sm">
+                                <span class="mr-2">🗂️</span> Cek Referensi Struktur
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="step-card flex flex-col md:flex-row bg-white border border-slate-100 rounded-xl p-5 shadow-sm relative z-10">
+                        <div class="flex-shrink-0 mb-4 md:mb-0 md:mr-6 flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-purple-600 to-indigo-600 text-white shadow-md font-bold text-2xl">
+                            4
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-bold text-slate-800 mb-1 flex items-center"><span class="mr-2 text-sm">☁️</span> Mengunggah Dokumen</h4>
+                            <p class="text-sm text-slate-600">Setelah semua tanda tangan persetujuan diperoleh, unggah/upload kembali dokumen tersebut pada kolom yang tersedia di Google Form awal.</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 5 -->
+                    <div class="step-card flex flex-col md:flex-row bg-white border border-slate-100 rounded-xl p-5 shadow-sm relative z-10">
+                        <div class="flex-shrink-0 mb-4 md:mb-0 md:mr-6 flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-purple-600 to-indigo-600 text-white shadow-md font-bold text-2xl">
+                            5
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-bold text-slate-800 mb-1 flex items-center"><span class="mr-2 text-sm">📨</span> Mengirimkan Form</h4>
+                            <p class="text-sm text-slate-600">Pastikan seluruh data dan dokumen lampiran sudah benar, lalu klik <span class="font-semibold text-slate-800">Submit</span>. Pengajuan akan diproses oleh tim terkait.</p>
+                            <p class="text-xs text-red-500 mt-2 italic">*Pengajuan tanpa dokumen lengkap/sesuai akan dikembalikan untuk direvisi.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer / Catatan Penting -->
+        <div class="card bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="flex items-start">
+                    <span class="text-3xl mr-4 mt-1">⚠️</span>
+                    <div>
+                        <h4 class="font-bold text-lg mb-1">Catatan Penting</h4>
+                        <ul class="text-sm text-indigo-100 list-disc ml-4 space-y-1">
+                            <li>Pengajuan <b>wajib</b> disertai alasan yang jelas & bukti pendukung yang relevan.</li>
+                            <li>Wajib memperoleh persetujuan Atasan sesuai mekanisme.</li>
+                            <li>Kebijakan lengkap dapat dibaca pada dokumen resmi perusahaan.</li>
+                        </ul>
+                        <a href="https://drive.google.com/file/d/1CMBd4DK4yVrZ7tjxEWBuhCqzzruOzq_V/view?usp=sharing" target="_blank" rel="noopener noreferrer" class="btn-primary inline-flex items-center mt-3 px-4 py-2 text-white text-xs font-semibold rounded-lg shadow-sm bg-white/20 hover:bg-white/30">
+                            <span class="mr-2">📄</span> Lihat Kebijakan Cuti & Izin
+                        </a>
+                    </div>
+                </div>
+                <div class="text-center md:text-right text-sm border-t md:border-t-0 md:border-l border-white/30 pt-4 md:pt-0 md:pl-6 text-indigo-200">
+                    <p class="font-semibold text-white mb-1">Corporate Regulatory Compliance</p>
+                    <p>Dasaria Group - HO</p>
+                    <p class="text-xs mt-2 opacity-75">Tgl Berlaku: 27 Agustus 2026</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+</body>
+</html>
