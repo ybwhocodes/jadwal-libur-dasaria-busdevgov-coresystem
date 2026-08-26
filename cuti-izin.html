@@ -57,6 +57,31 @@
         }
         .fade-in { animation: fadeIn 0.5s ease-out; }
 
+        /* Top navigation menu */
+        .nav-link {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border-radius: 0.75rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            text-decoration: none;
+            border: 2px solid #e2e8f0;
+            background: #f1f5f9;
+            color: #64748b;
+        }
+        .nav-link:hover {
+            transform: translateY(-1px);
+            background: #e2e8f0;
+            color: #334155;
+        }
+        .nav-link.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+        }
+
         .step-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
@@ -74,13 +99,14 @@
     <main class="max-w-4xl mx-auto fade-in space-y-6">
 
         <!-- Breadcrumb -->
-        <nav class="flex items-center gap-2 text-sm text-slate-500">
-            <a href="index.html" class="flex items-center gap-1 text-indigo-600 hover:text-indigo-800 font-medium transition-colors">
-                <span>🏠</span> Beranda
-            </a>
-            <span class="text-slate-300">/</span>
-            <span class="text-slate-600 font-medium">Panduan Cuti & Izin</span>
-        </nav>
+       <nav class="card mb-6 fade-in">
+        <div class="flex flex-wrap items-center justify-center gap-4 text-center">
+          <div class="flex flex-wrap items-center justify-center gap-2">
+            <a href="index.html" class="nav-link">Dashboard Absensi</a>
+            <a href="cuti-izin.html" class="nav-link active">Izin & Cuti</a>
+          </div>
+        </div>
+      </nav>
 
         <!-- Header Section -->
         <div class="card overflow-hidden">
